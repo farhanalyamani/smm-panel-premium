@@ -482,3 +482,226 @@ select.form-control {
   padding: 2rem 1.5rem;
   text-align: center;
 }
+
+/* ===== MARQUEE TICKER ===== */
+.marquee-wrapper {
+  background: rgba(124, 58, 237, 0.08);
+  border-bottom: 1px solid rgba(124, 58, 237, 0.15);
+  overflow: hidden;
+  padding: 0.6rem 0;
+  position: relative;
+  z-index: 2;
+}
+
+.marquee-wrapper::before,
+.marquee-wrapper::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 60px;
+  z-index: 2;
+}
+.marquee-wrapper::before { left: 0; background: linear-gradient(to right, #09090f, transparent); }
+.marquee-wrapper::after  { right: 0; background: linear-gradient(to left, #09090f, transparent); }
+
+.marquee-track {
+  display: flex;
+  gap: 0;
+  animation: marquee-scroll 28s linear infinite;
+  width: max-content;
+}
+
+.marquee-item {
+  padding: 0 2rem;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--primary-light);
+  white-space: nowrap;
+  border-right: 1px solid rgba(124, 58, 237, 0.2);
+}
+
+@keyframes marquee-scroll {
+  0%   { transform: translateX(0); }
+  100% { transform: translateX(-50%); }
+}
+
+/* ===== FLOATING PARTICLES ===== */
+@keyframes float-particle {
+  0%   { transform: translateY(0) translateX(0) scale(1); opacity: 0.05; }
+  100% { transform: translateY(-40px) translateX(20px) scale(1.5); opacity: 0.2; }
+}
+
+/* ===== PULSE BADGE ===== */
+@keyframes pulse-badge {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(124, 58, 237, 0.4); }
+  50%       { box-shadow: 0 0 0 6px rgba(124, 58, 237, 0); }
+}
+
+/* ===== PLATFORM GRID ===== */
+.platform-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 0.75rem;
+}
+
+.platform-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.85rem 0.5rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  cursor: pointer;
+  transition: all 0.2s ease;
+  animation: fade-in-up 0.4s ease both;
+}
+
+.platform-card:active {
+  transform: scale(0.96);
+  border-color: rgba(124, 58, 237, 0.5);
+}
+
+@media (hover: hover) {
+  .platform-card:hover {
+    border-color: rgba(124, 58, 237, 0.4);
+    box-shadow: 0 4px 20px rgba(124, 58, 237, 0.15);
+    transform: translateY(-2px);
+  }
+}
+
+.platform-logo-wrapper {
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 8px;
+  color: #fff;
+  flex-shrink: 0;
+}
+
+.platform-logo-wrapper svg {
+  width: 100%;
+  height: 100%;
+}
+
+.platform-name {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--muted);
+  text-align: center;
+  white-space: nowrap;
+}
+
+@keyframes fade-in-up {
+  from { opacity: 0; transform: translateY(12px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== HOW TO ORDER STEPS ===== */
+.steps-grid {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+  max-width: 600px;
+  margin: 0 auto;
+  position: relative;
+}
+
+.step-card {
+  display: flex;
+  flex-direction: column;
+  gap: 0.3rem;
+  padding: 1.25rem;
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  margin-bottom: 0.75rem;
+  position: relative;
+  animation: fade-in-up 0.4s ease both;
+  transition: border-color 0.2s ease;
+}
+
+.step-card:active {
+  border-color: rgba(124, 58, 237, 0.5);
+}
+
+@media (hover: hover) {
+  .step-card:hover {
+    border-color: rgba(124, 58, 237, 0.35);
+  }
+}
+
+.step-num {
+  font-size: 0.65rem;
+  font-weight: 800;
+  color: var(--primary-light);
+  letter-spacing: 0.15em;
+  text-transform: uppercase;
+}
+
+.step-icon {
+  font-size: 1.6rem;
+  margin: 0.25rem 0;
+}
+
+.step-title {
+  font-size: 1rem;
+  font-weight: 700;
+}
+
+.step-desc {
+  font-size: 0.875rem;
+  color: var(--muted);
+  line-height: 1.5;
+}
+
+/* ===== TRUST BADGES ===== */
+.trust-row {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+  padding: 0 1.2rem 2rem;
+}
+
+.trust-badge {
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-sm);
+  padding: 0.75rem 1rem;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+  color: var(--muted);
+}
+
+/* ===== DESKTOP OVERRIDE (EXTENDED) ===== */
+@media (min-width: 768px) {
+  .platform-grid {
+    grid-template-columns: repeat(8, 1fr);
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .steps-grid {
+    display: grid;
+    grid-template-columns: repeat(5, 1fr);
+    gap: 0.75rem;
+    max-width: 900px;
+  }
+
+  .step-card {
+    margin-bottom: 0;
+  }
+
+  .trust-row {
+    grid-template-columns: repeat(4, 1fr);
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 0 5% 2rem;
+  }
+}
