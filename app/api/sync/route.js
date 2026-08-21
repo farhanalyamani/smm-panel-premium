@@ -25,11 +25,20 @@ export async function POST() {
 
     const res = await fetch('https://irvankedesmm.co.id/api/services', {
       method: 'POST',
-      headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      headers: { 
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36'
+      },
       body: formData.toString()
     });
 
-    const responseData = await res.json();
+    const rawResponse = await res.text();
+    let responseData;
+    try {
+      responseData = JSON.parse(rawResponse);
+    } catch (e) {
+      return NextResponse.json({ status: false, message: 'Server IrvanKede mengembalikan error non-JSON (mungkin kena blokir Cloudflare atau Endpoint salah): ' + rawResponse.substring(0, 100) }, { status: 500 });
+    }
     
     // Asumsi IrvanKede: respons sukses = { status: true, data: [...] }
     const services = responseData.data;
