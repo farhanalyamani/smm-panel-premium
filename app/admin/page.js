@@ -2,6 +2,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 import { useRouter } from 'next/navigation';
+import Logo from './../components/Logo';
 
 // ===== SIDEBAR COMPONENT =====
 function Sidebar({ activePage, setActivePage, onLogout }) {
@@ -27,17 +28,7 @@ function Sidebar({ activePage, setActivePage, onLogout }) {
         padding: '1.5rem 1.25rem',
         borderBottom: '1px solid rgba(255,255,255,0.07)',
       }}>
-        <div style={{
-          background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
-          WebkitBackgroundClip: 'text',
-          WebkitTextFillColor: 'transparent',
-          backgroundClip: 'text',
-          fontSize: '1.3rem',
-          fontWeight: 800,
-          letterSpacing: '-0.5px',
-        }}>
-          SocialBoost<span style={{ WebkitTextFillColor: '#fff' }}>.</span>
-        </div>
+          <Logo size="1.3rem" />
         <div style={{ fontSize: '0.7rem', color: '#475569', marginTop: '0.15rem', fontWeight: 600, letterSpacing: '0.08em', textTransform: 'uppercase' }}>
           Admin Panel
         </div>

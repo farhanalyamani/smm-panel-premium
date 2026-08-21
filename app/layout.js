@@ -1,4 +1,5 @@
 import "./globals.css";
+import Logo from "./components/Logo";
 
 export const metadata = {
   title: "SocialBoost | SMM Panel Premium",
@@ -11,10 +12,10 @@ export default function RootLayout({ children }) {
       <body>
         <div className="main-wrapper">
           <nav className="navbar">
-            <a href="/" className="navbar-logo gradient-text">
-              SocialBoost<span style={{ WebkitTextFillColor: '#fff' }}>.</span>
+            <a href="/" style={{ textDecoration: 'none' }}>
+              <Logo size="1.35rem" />
             </a>
-            <a href="/login" style={{ textDecoration: 'none' }}>
+            <a href="/admin" style={{ textDecoration: 'none' }}>
               <button className="btn-primary btn-sm">Login</button>
             </a>
           </nav>

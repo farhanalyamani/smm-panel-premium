@@ -1,6 +1,7 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
 import { useRouter } from 'next/navigation';
+import Logo from './../components/Logo';
 
 // Floating orbs background
 function FloatingOrbs() {
@@ -142,15 +143,8 @@ export default function LoginPage() {
         }}>
           {/* Brand */}
           <div>
-            <div style={{
-              fontSize: '1.5rem', fontWeight: 900, letterSpacing: '-0.5px',
-              background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-              marginBottom: '0.2rem',
-            }}>
-              SocialBoost<span style={{ WebkitTextFillColor: '#fff' }}>.</span>
-            </div>
-            <div style={{ fontSize: '0.72rem', color: '#475569', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700 }}>
+            <Logo size="1.8rem" />
+            <div style={{ fontSize: '0.72rem', color: '#475569', letterSpacing: '0.12em', textTransform: 'uppercase', fontWeight: 700, marginTop: '0.4rem' }}>
               Admin Control Panel
             </div>
           </div>
@@ -198,12 +192,7 @@ export default function LoginPage() {
         }}>
           {/* Mobile brand */}
           <div style={{ marginBottom: '2.5rem', display: 'block' }}>
-            <div style={{
-              fontSize: '1.3rem', fontWeight: 900, background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
-              WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent',
-            }}>
-              SocialBoost<span style={{ WebkitTextFillColor: '#fff' }}>.</span>
-            </div>
+            <Logo size="1.5rem" />
           </div>
 
           {/* Lock icon */}
