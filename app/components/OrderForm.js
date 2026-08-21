@@ -94,6 +94,7 @@ export default function OrderForm() {
 
   // Modal State
   const [showModal, setShowModal] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [receiptFile, setReceiptFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
@@ -201,9 +202,10 @@ export default function OrderForm() {
       return; 
     }
 
-    alert('✅ Pesanan berhasil dibuat! Admin akan segera memverifikasi pembayaran kamu.');
     setShowModal(false);
     setUploading(false);
+    setShowSuccessModal(true); // Tampilkan modal sukses kustom
+
     // Reset Form
     setTarget('');
     setQuantity('');
@@ -483,6 +485,32 @@ export default function OrderForm() {
                 {uploading ? '⏳ Mengunggah...' : '✅ Konfirmasi'}
               </button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* ================= MODAL SUKSES ================= */}
+      {showSuccessModal && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ textAlign: 'center', maxWidth: '380px' }}>
+            <div style={{ fontSize: '4rem', marginBottom: '1rem', animation: 'pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>
+              🎉
+            </div>
+            <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.75rem', background: 'linear-gradient(135deg, #34d399, #10b981)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+              Pesanan Berhasil!
+            </h3>
+            <p style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '2rem', lineHeight: '1.6' }}>
+              Terima kasih! Bukti transfer kamu sudah kami terima dan pesanan sedang <strong style={{ color: '#f1f5f9' }}>menunggu verifikasi admin</strong>. Pantau terus jumlah followers/likes kamu ya! 🚀
+            </p>
+            <button 
+              onClick={() => {
+                setShowSuccessModal(false);
+                window.location.reload(); // Refresh halaman setelah sukses
+              }}
+              style={{ width: '100%', padding: '1rem', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', border: 'none', borderRadius: '12px', color: '#fff', fontWeight: 700, fontSize: '1rem', cursor: 'pointer', boxShadow: '0 4px 15px rgba(124, 58, 237, 0.4)' }}
+            >
+              Kembali ke Beranda
+            </button>
           </div>
         </div>
       )}
