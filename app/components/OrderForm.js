@@ -2,12 +2,40 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/lib/supabase';
 
+// Daftar keyword untuk grouping
+const platformKeywords = {
+  'Instagram': ['instagram', 'ig '],
+  'TikTok': ['tiktok', 'tik tok'],
+  'YouTube': ['youtube', 'yt '],
+  'Facebook': ['facebook', 'fb '],
+  'Twitter/X': ['twitter', ' x '],
+  'Shopee': ['shopee'],
+  'Tokopedia': ['tokopedia'],
+  'Spotify': ['spotify'],
+  'Telegram': ['telegram'],
+  'Discord': ['discord'],
+  'Website Traffic': ['website', 'traffic']
+};
+
+const getPlatform = (categoryName) => {
+  const nameLower = categoryName.toLowerCase();
+  for (const [platform, keywords] of Object.entries(platformKeywords)) {
+    if (keywords.some(kw => nameLower.includes(kw))) {
+      return platform;
+    }
+  }
+  return 'Lainnya';
+};
+
 export default function OrderForm() {
-  const [categories, setCategories] = useState([]);
+  const [allCategories, setAllCategories] = useState([]);
+  const [platforms, setPlatforms] = useState([]);
   const [services, setServices] = useState([]);
 
+  const [selectedPlatform, setSelectedPlatform] = useState('');
   const [selectedCategory, setSelectedCategory] = useState('');
   const [selectedService, setSelectedService] = useState(null);
+  
   const [target, setTarget] = useState('');
   const [quantity, setQuantity] = useState('');
   const [loadingCats, setLoadingCats] = useState(true);
@@ -18,8 +46,17 @@ export default function OrderForm() {
     const fetchCategories = async () => {
       const { data, error } = await supabase.from('smm_services').select('category');
       if (!error && data) {
-        const uniqueCats = [...new Set(data.map(item => item.category))];
-        setCategories(uniqueCats.sort());
+        const uniqueCats = [...new Set(data.map(item => item.category))].sort();
+        setAllCategories(uniqueCats);
+        
+        // Ambil platform unik
+        const uniquePlatforms = [...new Set(uniqueCats.map(c => getPlatform(c)))];
+        const sortedPlatforms = uniquePlatforms.sort((a, b) => {
+          if (a === 'Lainnya') return 1;
+          if (b === 'Lainnya') return -1;
+          return a.localeCompare(b);
+        });
+        setPlatforms(sortedPlatforms);
       }
       setLoadingCats(false);
     };
@@ -38,6 +75,19 @@ export default function OrderForm() {
     };
     fetch();
   }, [selectedCategory]);
+
+  const handlePlatformChange = (e) => {
+    setSelectedPlatform(e.target.value);
+    setSelectedCategory('');
+    setSelectedService(null);
+    setQuantity('');
+  };
+
+  const handleCategoryChange = (e) => {
+    setSelectedCategory(e.target.value);
+    setSelectedService(null);
+    setQuantity('');
+  };
 
   const handleServiceChange = (e) => {
     const s = services.find(item => item.id.toString() === e.target.value);
@@ -84,22 +134,45 @@ export default function OrderForm() {
   const total = calculateTotal();
   const isValid = selectedService && target && quantity;
 
+  // Filter kategori berdasarkan platform yang dipilih
+  const filteredCategories = selectedPlatform 
+    ? allCategories.filter(c => getPlatform(c) === selectedPlatform)
+    : [];
+
   return (
     <div style={{ display: 'flex', flexDirection: 'column', gap: '1.25rem' }}>
       <p className="section-title">📋 Form Pemesanan</p>
 
+      {/* Platform */}
+      <div className="form-group">
+        <label className="form-label">1. Pilih Platform Sosmed</label>
+        <select
+          className="form-control"
+          value={selectedPlatform}
+          onChange={handlePlatformChange}
+        >
+          <option value="" style={{ color: '#000' }}>
+            {loadingCats ? '⏳ Memuat...' : '— Pilih Platform (IG, TikTok, dll) —'}
+          </option>
+          {platforms.map((plat, i) => (
+            <option key={i} value={plat} style={{ color: '#000' }}>{plat}</option>
+          ))}
+        </select>
+      </div>
+
       {/* Kategori */}
       <div className="form-group">
-        <label className="form-label">1. Pilih Kategori</label>
+        <label className="form-label">2. Pilih Kategori</label>
         <select
           className="form-control"
           value={selectedCategory}
-          onChange={(e) => { setSelectedCategory(e.target.value); setSelectedService(null); }}
+          onChange={handleCategoryChange}
+          disabled={!selectedPlatform || loadingCats}
         >
           <option value="" style={{ color: '#000' }}>
-            {loadingCats ? '⏳ Memuat...' : '— Pilih platform sosmed —'}
+            {!selectedPlatform ? '— Pilih platform dulu —' : '— Pilih Kategori —'}
           </option>
-          {categories.map((cat, i) => (
+          {filteredCategories.map((cat, i) => (
             <option key={i} value={cat} style={{ color: '#000' }}>{cat}</option>
           ))}
         </select>
@@ -107,7 +180,7 @@ export default function OrderForm() {
 
       {/* Layanan */}
       <div className="form-group">
-        <label className="form-label">2. Pilih Layanan</label>
+        <label className="form-label">3. Pilih Layanan</label>
         <select
           className="form-control"
           value={selectedService ? selectedService.id : ''}
@@ -151,7 +224,7 @@ export default function OrderForm() {
 
       {/* Target */}
       <div className="form-group">
-        <label className="form-label">3. Target (Username / Link)</label>
+        <label className="form-label">4. Target (Username / Link)</label>
         <div className="alert-warning" style={{ marginBottom: '0.5rem' }}>
           ⚠️ <strong>Wajib</strong>: Akun <strong>TIDAK DI-PRIVATE</strong> (harus Public). Akun gembok = hangus, no refund!
         </div>
@@ -167,7 +240,7 @@ export default function OrderForm() {
 
       {/* Kuantitas */}
       <div className="form-group">
-        <label className="form-label">4. Jumlah</label>
+        <label className="form-label">5. Jumlah</label>
         <input
           type="number"
           className="form-control"
