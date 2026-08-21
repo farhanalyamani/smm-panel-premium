@@ -428,7 +428,7 @@ export default function OrderForm() {
             </div>
 
             {/* QRIS Image Placeholder */}
-            <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', marginBottom: '1.5rem' }}>
               <div style={{ width: '220px', height: '220px', background: '#fff', padding: '10px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
                 {/* 
                   TODO: USER HARUS MENAMBAHKAN qris.png KE DALAM FOLDER public/
@@ -439,6 +439,12 @@ export default function OrderForm() {
                     e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3e%3Crect width='200' height='200' fill='%23f1f5f9'/%3e%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23475569'%3eTaruh qris.png di folder public%3C/text%3e%3C/svg%3e";
                   }}
                 />
+              </div>
+              
+              {/* Nama Rekening */}
+              <div style={{ marginTop: '0.75rem', textAlign: 'center', background: 'rgba(255,255,255,0.03)', padding: '0.5rem 1rem', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.05)' }}>
+                <span style={{ display: 'block', fontSize: '0.7rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.15rem' }}>Diterima Atas Nama</span>
+                <strong style={{ fontSize: '0.95rem', color: '#f1f5f9', letterSpacing: '0.01em' }}>Digital Kreatif, Farhan Eka F</strong>
               </div>
             </div>
 
