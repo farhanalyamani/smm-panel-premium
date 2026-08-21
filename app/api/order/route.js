@@ -5,7 +5,8 @@ import { cookies } from 'next/headers';
 export async function POST(req) {
   try {
     // PROTEKSI: Cek Token Cookies dari Brankas Browser
-    const adminToken = cookies().get('smm_admin_token');
+    const cookieStore = await cookies();
+    const adminToken = cookieStore.get('smm_admin_token');
     if (!adminToken || adminToken.value !== 'valid_admin_session') {
       return NextResponse.json({ status: false, message: 'DITOLAK! Lu bukan admin bos.' }, { status: 401 });
     }

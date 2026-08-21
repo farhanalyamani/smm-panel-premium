@@ -8,7 +8,8 @@ export async function POST(req) {
     // Cek kecocokan dengan file .env.local
     if (username === process.env.ADMIN_USERNAME && password === process.env.ADMIN_PASSWORD) {
       // Bikin brankas cookie yang aman (HttpOnly)
-      cookies().set('smm_admin_token', 'valid_admin_session', {
+      const cookieStore = await cookies();
+      cookieStore.set('smm_admin_token', 'valid_admin_session', {
         httpOnly: true,
         secure: process.env.NODE_ENV === 'production',
         sameSite: 'lax',
