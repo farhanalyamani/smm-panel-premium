@@ -6,66 +6,78 @@ export default function LoginPage() {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
   const [error, setError] = useState('');
+  const [loading, setLoading] = useState(false);
   const router = useRouter();
 
   const handleLogin = async (e) => {
     e.preventDefault();
+    setLoading(true);
+    setError('');
     try {
       const res = await fetch('/api/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ username, password })
       });
-      
       const data = await res.json();
-      
       if (data.status) {
         localStorage.setItem('isAdmin', 'true');
         router.push('/admin');
       } else {
-        setError(data.message);
+        setError(data.message || 'Username atau password salah!');
         setPassword('');
       }
-    } catch (err) {
-      setError('Gagal koneksi ke server.');
+    } catch {
+      setError('Gagal koneksi ke server. Coba lagi.');
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: '80vh' }}>
-      <div className="glass-panel" style={{ width: '100%', maxWidth: '400px', textAlign: 'center' }}>
-        <h2 className="gradient-text" style={{ fontSize: '2rem', marginBottom: '1rem' }}>Login Akun</h2>
-        <p style={{ color: '#a1a1aa', marginBottom: '2rem', fontSize: '0.9rem' }}>
-          Silahkan masuk untuk mengelola pesanan atau melakukan order.
+    <div className="login-wrapper">
+      <div className="login-card">
+        <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🔐</div>
+        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.4rem' }}>
+          Masuk ke Akun
+        </h1>
+        <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1.75rem' }}>
+          Silakan login untuk melanjutkan
         </p>
-        
-        <form onSubmit={handleLogin}>
-          <input 
-            type="text" 
-            className="glass-card" 
-            placeholder="Username..." 
-            style={{ width: '100%', padding: '1rem', outline: 'none', color: '#f8fafc', marginBottom: '1rem', textAlign: 'center', letterSpacing: '1px' }}
+
+        <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
+          <input
+            type="text"
+            className="form-control"
+            placeholder="Username"
             value={username}
             onChange={(e) => setUsername(e.target.value)}
+            autoComplete="username"
+            required
           />
-
-          <input 
-            type="password" 
-            className="glass-card" 
-            placeholder="Masukkan Password..." 
-            style={{ width: '100%', padding: '1rem', outline: 'none', color: '#f8fafc', marginBottom: '1rem', textAlign: 'center', letterSpacing: '2px' }}
+          <input
+            type="password"
+            className="form-control"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            autoComplete="current-password"
+            required
           />
-          
-          {error && <p style={{ color: '#ef4444', marginBottom: '1rem', fontSize: '0.9rem' }}>{error}</p>}
-          
-          <button 
-            type="submit" 
-            className="glass-button" 
-            style={{ width: '100%', padding: '1rem', fontSize: '1.1rem' }}
+
+          {error && (
+            <div className="alert-warning" style={{ textAlign: 'left' }}>
+              ⚠️ {error}
+            </div>
+          )}
+
+          <button
+            type="submit"
+            className="btn-primary"
+            disabled={loading}
+            style={{ marginTop: '0.5rem', padding: '1rem' }}
           >
-            Masuk
+            {loading ? '⏳ Memproses...' : 'Masuk'}
           </button>
         </form>
       </div>

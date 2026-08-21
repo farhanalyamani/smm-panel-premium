@@ -1,44 +1,65 @@
 import OrderForm from './components/OrderForm';
 
+const stats = [
+  { num: '2300+', label: 'Layanan' },
+  { num: '⚡ Instan', label: 'Proses' },
+  { num: '#1', label: 'Termurah' },
+];
+
+const categories = [
+  { icon: '📸', name: 'Instagram' },
+  { icon: '🎵', name: 'TikTok' },
+  { icon: '▶️', name: 'YouTube' },
+  { icon: '🛍️', name: 'Shopee' },
+  { icon: '🐦', name: 'Twitter/X' },
+  { icon: '📘', name: 'Facebook' },
+];
+
 export default function Home() {
-  const sosmedCategories = [
-    { name: 'Instagram', desc: 'Followers, Likes & Views', icon: '📸' },
-    { name: 'TikTok', desc: 'Followers, Likes & Views', icon: '🎵' },
-    { name: 'YouTube', desc: 'Subscribers & Jam Tayang', icon: '▶️' },
-    { name: 'Shopee', desc: 'Followers & Likes Produk', icon: '🛍️' },
-    { name: 'Twitter/X', desc: 'Followers & Retweets', icon: '🐦' },
-    { name: 'Facebook', desc: 'Page Likes & Followers', icon: '📘' }
-  ];
-
   return (
-    <main style={{ padding: '4rem 5%', maxWidth: '1200px', margin: '0 auto' }}>
-      {/* Hero Section */}
-      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
-        <h1 style={{ fontSize: '3.5rem', fontWeight: '700', marginBottom: '1rem' }}>
-          Tingkatkan <span className="gradient-text">Engagement</span><br />Sosmed Kamu Instan!
+    <main>
+      {/* Hero */}
+      <section className="hero">
+        <span className="badge badge-purple" style={{ marginBottom: '1rem', display: 'inline-block' }}>
+          🔥 Terpercaya & Termurah
+        </span>
+        <h1>
+          Boost Sosmed Kamu<br />
+          <span className="gradient-text">Instan & Otomatis!</span>
         </h1>
-        <p style={{ color: '#a1a1aa', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
-          Platform termurah & terpercaya buat kebutuhan optimasi sosial media. Proses cepat, harga tangan pertama (reseller).
+        <p>
+          Platform SMM tangan pertama. Followers, Likes, Views, Jam Tayang — proses cepat, harga reseller, anti ribet.
         </p>
-      </div>
+      </section>
 
-      {/* Categories Grid */}
-      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
-        {sosmedCategories.map((cat, idx) => (
-          <div key={idx} className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
-            <div style={{ fontSize: '2.5rem', background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '12px' }}>
-              {cat.icon}
-            </div>
-            <div>
-              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{cat.name}</h3>
-              <p style={{ color: '#a1a1aa', fontSize: '0.9rem' }}>{cat.desc}</p>
-            </div>
+      {/* Stats Row */}
+      <div className="stats-row">
+        {stats.map((s, i) => (
+          <div key={i} className="stat-card">
+            <div className="stat-num gradient-text">{s.num}</div>
+            <div className="stat-label">{s.label}</div>
           </div>
         ))}
       </div>
 
-      {/* Bagian Order Form */}
-      <OrderForm />
+      {/* Category Chips */}
+      <div className="chips-wrapper">
+        {categories.map((c, i) => (
+          <div key={i} className="chip">
+            <span>{c.icon}</span>
+            <span>{c.name}</span>
+          </div>
+        ))}
+      </div>
+
+      {/* Order Form */}
+      <div className="order-section" style={{ marginTop: '2rem' }}>
+        <OrderForm />
+      </div>
+
+      <footer className="footer">
+        © 2026 SocialBoost — Semua hak dilindungi
+      </footer>
     </main>
   );
 }
