@@ -1,7 +1,7 @@
 import "./globals.css";
 
 export const metadata = {
-  title: "SMM Panel Premium | Social Media Booster",
+  title: "SocialBoost | SMM Panel Premium",
   description: "Tingkatkan interaksi sosial media kamu dengan cepat dan aman. Followers, Likes, Views, dan Subscribers termurah.",
 };
 
@@ -12,7 +12,7 @@ export default function RootLayout({ children }) {
         <div className="main-wrapper">
           <nav style={{ padding: '1.5rem 5%', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
             <a href="/" style={{ textDecoration: 'none' }}>
-              <h2 className="gradient-text" style={{ fontSize: '1.5rem', fontWeight: 'bold' }}>PanelSosmed</h2>
+              <h2 className="gradient-text" style={{ fontSize: '1.6rem', fontWeight: 'bold', letterSpacing: '-0.5px' }}>SocialBoost<span style={{color: '#fff', fontSize: '1.6rem'}}>.</span></h2>
             </a>
             <div>
               <a href="/login" style={{ textDecoration: 'none' }}>
