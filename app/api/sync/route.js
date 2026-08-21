@@ -23,7 +23,8 @@ export async function POST() {
     formData.append('api_id', apiId);
     formData.append('api_key', apiKey);
 
-    const res = await fetch('https://irvankedesmm.co.id/api/services', {
+    // KITA GUNAKAN VPS WIBUFLIX SEBAGAI PROXY (JOKI) BIAR NGGAK DIBLOKIR CLOUDFLARE
+    const res = await fetch('https://wibuflixid.web.id/proxy_irvankede.php', {
       method: 'POST',
       headers: { 
         'Content-Type': 'application/x-www-form-urlencoded',
