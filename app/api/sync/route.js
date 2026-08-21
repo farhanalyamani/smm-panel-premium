@@ -1,16 +1,24 @@
 import { NextResponse } from 'next/server';
 import { supabase } from '@/lib/supabase';
+import { cookies } from 'next/headers';
 
-export async function GET() {
-  const apiId = process.env.IRVANKEDE_API_ID;
-  const apiKey = process.env.IRVANKEDE_API_KEY;
-
-  if (!apiId || !apiKey) {
-    return NextResponse.json({ status: false, data: 'API Credentials missing' }, { status: 400 });
-  }
-
+export async function POST() {
   try {
-    // 1. Ambil data asli dari Irvan Kede
+    // 1. Verifikasi admin
+    const cookieStore = await cookies();
+    const adminToken = cookieStore.get('smm_admin_token');
+    if (!adminToken || adminToken.value !== 'valid_admin_session') {
+      return NextResponse.json({ status: false, message: 'DITOLAK! Lu bukan admin bos.' }, { status: 401 });
+    }
+
+    const apiId = process.env.IRVANKEDE_API_ID;
+    const apiKey = process.env.IRVANKEDE_API_KEY;
+
+    if (!apiId || !apiKey) {
+      return NextResponse.json({ status: false, message: 'API Credentials missing' }, { status: 500 });
+    }
+
+    // 2. Tarik data layanan terbaru dari Irvan Kede
     const formData = new URLSearchParams();
     formData.append('api_id', apiId);
     formData.append('api_key', apiKey);
@@ -21,38 +29,58 @@ export async function GET() {
       body: formData.toString()
     });
 
-    const irvanData = await res.json();
-
-    if (!irvanData.status || !irvanData.data) {
-      throw new Error('Gagal narik data dari Irvan Kede');
+    const responseData = await res.json();
+    
+    // Asumsi IrvanKede: respons sukses = { status: true, data: [...] }
+    const services = responseData.data;
+    if (!responseData.status || !Array.isArray(services)) {
+      return NextResponse.json({ status: false, message: 'Gagal menyedot data layanan dari Irvan Kede.' }, { status: 500 });
     }
 
-    // 2. Format data dan tambah Mark-Up Keuntungan (Misal: 25%)
-    const PROFIT_MARGIN = 1.25;
-    
-    const formattedData = irvanData.data.map(item => ({
-      service_id: parseInt(item.id),
-      category: item.category,
-      name: item.name,
-      price: Math.ceil(parseInt(item.price) * PROFIT_MARGIN), // Harga jual ke user
-      min: parseInt(item.min),
-      max: parseInt(item.max),
-      description: item.note || ''
-    }));
-
-    // 3. Hapus data lama biar bersih (Biar harga selalu update)
-    await supabase.from('smm_services').delete().neq('id', 0); // Delete all
-
-    // 4. Insert data baru secara massal (Bulk Insert)
-    const { error } = await supabase
+    // 3. Hapus SEMUA layanan lama di database kita
+    // Supabase JS tidak bisa delete tanpa filter, jadi kita gunakan ne (not equal) ke ID yang tidak mungkin ada, atau is_not_null
+    const { error: deleteError } = await supabase
       .from('smm_services')
-      .insert(formattedData);
+      .delete()
+      .neq('id', 0); // Menghapus semua baris karena ID pasti != 0
 
-    if (error) throw error;
+    if (deleteError) {
+      return NextResponse.json({ status: false, message: 'Gagal menghapus data lama: ' + deleteError.message }, { status: 500 });
+    }
+
+    // 4. Siapkan data baru dengan Mark-up Harga (Untung 20% + Rp100)
+    const formattedData = services.map(s => {
+      const modal = parseFloat(s.price);
+      // Untung kotor 20% + Rp100
+      let hargaJual = modal + (modal * 0.20) + 100;
+      
+      return {
+        service_id: s.id,
+        name: s.name,
+        category: s.category,
+        price: Math.ceil(hargaJual),
+        min: parseInt(s.min),
+        max: parseInt(s.max),
+        description: s.description || ''
+      };
+    });
+
+    // 5. Masukkan ke Supabase dalam batch per 500 baris (mencegah timeout payload terlalu besar)
+    const batchSize = 500;
+    for (let i = 0; i < formattedData.length; i += batchSize) {
+      const batch = formattedData.slice(i, i + batchSize);
+      const { error: insertError } = await supabase
+        .from('smm_services')
+        .insert(batch);
+        
+      if (insertError) {
+        return NextResponse.json({ status: false, message: 'Gagal menyimpan batch baru: ' + insertError.message }, { status: 500 });
+      }
+    }
 
     return NextResponse.json({ 
       status: true, 
-      message: `Sukses sinkronisasi ${formattedData.length} layanan ke Supabase dengan profit 25%!` 
+      message: `Berhasil sinkronisasi ${formattedData.length} layanan terbaru yang aktif!` 
     });
 
   } catch (error) {

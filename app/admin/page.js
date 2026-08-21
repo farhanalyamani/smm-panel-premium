@@ -7,6 +7,7 @@ export default function AdminDashboard() {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
+  const [syncing, setSyncing] = useState(false);
   const router = useRouter();
 
   // Proteksi Keamanan: Cek apakah user adalah admin
@@ -59,13 +60,43 @@ export default function AdminDashboard() {
     setProcessingId(null);
   };
 
+  const handleSyncServices = async () => {
+    if (!confirm("Yakin mau sinkronisasi layanan sekarang? Ini akan menghapus layanan lama dan mengambil layanan terbaru dari IrvanKede.")) return;
+    
+    setSyncing(true);
+    try {
+      const res = await fetch('/api/sync', {
+        method: 'POST'
+      });
+      const result = await res.json();
+      if (result.status) {
+        alert(result.message);
+      } else {
+        alert("Gagal Sync: " + result.message);
+      }
+    } catch (error) {
+      alert("Error system saat sync: " + error.message);
+    }
+    setSyncing(false);
+  };
+
   return (
     <div style={{ padding: '3rem 5%', minHeight: '100vh', backgroundColor: '#0d0f14' }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '2rem' }}>
         <h1 className="gradient-text" style={{ fontSize: '2.5rem' }}>Admin Dashboard</h1>
-        <button onClick={fetchOrders} className="glass-button" style={{ padding: '0.5rem 1rem' }}>
-          Refresh Data
-        </button>
+        <div style={{ display: 'flex', gap: '1rem' }}>
+          <button 
+            onClick={handleSyncServices} 
+            className="btn-primary" 
+            style={{ padding: '0.5rem 1rem', fontSize: '0.9rem' }}
+            disabled={syncing}
+          >
+            {syncing ? '🔄 Sedang Sinkronisasi...' : '🔄 Sinkronkan Layanan'}
+          </button>
+          <button onClick={fetchOrders} className="glass-button" style={{ padding: '0.5rem 1rem' }}>
+            Refresh Data
+          </button>
+        </div>
       </div>
 
       <div className="glass-panel" style={{ overflowX: 'auto' }}>
