@@ -431,12 +431,12 @@ export default function OrderForm() {
             <div style={{ display: 'flex', justifyContent: 'center', marginBottom: '1.5rem' }}>
               <div style={{ width: '220px', height: '220px', background: '#fff', padding: '10px', borderRadius: '16px', boxShadow: '0 10px 25px rgba(0,0,0,0.2)' }}>
                 {/* 
-                  TODO: USER HARUS MENAMBAHKAN qris.jpg KE DALAM FOLDER public/
+                  TODO: USER HARUS MENAMBAHKAN qris.png KE DALAM FOLDER public/
                 */}
-                <img src="/qris.jpg" alt="QRIS Barcode" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px' }} 
+                <img src="/qris.png" alt="QRIS Barcode" style={{ width: '100%', height: '100%', objectFit: 'contain', borderRadius: '8px' }} 
                   onError={(e) => {
                     e.target.onerror = null;
-                    e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3e%3Crect width='200' height='200' fill='%23f1f5f9'/%3e%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23475569'%3eTaruh qris.jpg di folder public%3C/text%3e%3C/svg%3e";
+                    e.target.src = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200' viewBox='0 0 200 200'%3e%3Crect width='200' height='200' fill='%23f1f5f9'/%3e%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' font-family='sans-serif' font-size='14' fill='%23475569'%3eTaruh qris.png di folder public%3C/text%3e%3C/svg%3e";
                   }}
                 />
               </div>
