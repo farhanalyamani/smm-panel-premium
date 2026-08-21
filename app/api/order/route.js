@@ -54,7 +54,7 @@ export async function POST(req) {
     const irvanData = await res.json();
 
     if (irvanData.status === false || irvanData.error) {
-      const errorMsg = irvanData.data || irvanData.error || irvanData.message || JSON.stringify(irvanData);
+      const errorMsg = irvanData.data || irvanData.msg || irvanData.error || irvanData.message || JSON.stringify(irvanData);
       return NextResponse.json({ status: false, message: errorMsg });
     }
 
