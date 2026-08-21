@@ -196,26 +196,67 @@ export default function OrderForm() {
             </option>
           ))}
         </select>
+        
+        {/* Panduan Singkat Istilah SMM */}
+        <div style={{ fontSize: '0.8rem', color: '#94a3b8', marginTop: '0.75rem', background: 'rgba(255,255,255,0.02)', padding: '0.85rem', borderRadius: '8px', border: '1px dashed rgba(255,255,255,0.1)', lineHeight: '1.5' }}>
+          <strong style={{ color: '#e2e8f0', display: 'block', marginBottom: '0.25rem' }}>💡 Bingung milih? Ini panduan istilahnya:</strong>
+          • <strong style={{ color: '#34d399' }}>Refill / ♻️</strong> = Bergaransi. Kalau turun bakal diisi ulang gratis.<br/>
+          • <strong style={{ color: '#f87171' }}>No Refill / NR / ⚠️</strong> = Tanpa garansi, risiko ditanggung sendiri.<br/>
+          • <strong style={{ color: '#a78bfa' }}>Low Drop</strong> = Kemungkinan turun/unfollow sangat kecil.<br/>
+          • <strong>Mix / Bot</strong> = Akun campuran (biasanya tanpa foto profil).<br/>
+          • <strong>Real / HQ</strong> = Akun asli / kualitas tinggi (ada foto profil).
+        </div>
       </div>
 
       {/* Detail Layanan */}
       {selectedService && (
-        <div className="detail-card">
-          <div className="detail-row">
-            <span>Min</span>
-            <span>{selectedService.min.toLocaleString('id-ID')}</span>
+        <div className="detail-card" style={{ padding: '1.25rem', background: 'rgba(255,255,255,0.03)', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.05)' }}>
+          {/* Fitur Layanan (Dipecah dari Nama) */}
+          <div style={{ marginBottom: '1.25rem' }}>
+            <span style={{ fontSize: '0.75rem', color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700, display: 'block', marginBottom: '0.5rem' }}>Spek Layanan Ini:</span>
+            <div style={{ display: 'flex', flexWrap: 'wrap', gap: '0.5rem' }}>
+              {selectedService.name.split('|').map((tag, idx) => {
+                const cleanTag = tag.trim();
+                if (!cleanTag) return null;
+                
+                // Pewarnaan otomatis berdasarkan kata kunci
+                let bg = 'rgba(255,255,255,0.05)';
+                let color = '#e2e8f0';
+                const lower = cleanTag.toLowerCase();
+                
+                if (lower.includes('refill') || lower.includes('♻️')) { bg = 'rgba(16, 185, 129, 0.15)'; color = '#34d399'; }
+                else if (lower.includes('no refill') || lower.includes('nr') || lower.includes('⚠️')) { bg = 'rgba(239, 68, 68, 0.15)'; color = '#f87171'; }
+                else if (lower.includes('real') || lower.includes('hq') || lower.includes('active')) { bg = 'rgba(167, 139, 250, 0.15)'; color = '#a78bfa'; }
+                else if (lower.includes('instant') || lower.includes('fast')) { bg = 'rgba(56, 189, 248, 0.15)'; color = '#38bdf8'; }
+
+                return (
+                  <span key={idx} style={{ background: bg, color: color, padding: '4px 10px', borderRadius: '6px', fontSize: '0.75rem', fontWeight: 600 }}>
+                    {cleanTag.replace(/\[|\]/g, '')}
+                  </span>
+                );
+              })}
+            </div>
           </div>
-          <div className="divider" />
-          <div className="detail-row">
-            <span>Max</span>
-            <span>{selectedService.max.toLocaleString('id-ID')}</span>
+          
+          <div className="divider" style={{ margin: '1rem 0', background: 'rgba(255,255,255,0.05)', height: '1px' }} />
+          
+          <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.5rem', fontSize: '0.9rem' }}>
+            <span style={{ color: '#94a3b8' }}>Minimum Beli</span>
+            <span style={{ fontWeight: 700, color: '#fff' }}>{selectedService.min.toLocaleString('id-ID')}</span>
           </div>
+          <div style={{ display: 'flex', justifyContent: 'space-between', fontSize: '0.9rem' }}>
+            <span style={{ color: '#94a3b8' }}>Maksimum Beli</span>
+            <span style={{ fontWeight: 700, color: '#fff' }}>{selectedService.max.toLocaleString('id-ID')}</span>
+          </div>
+
           {selectedService.description && (
             <>
-              <div className="divider" />
-              <div className="detail-row">
-                <span>Info</span>
-                <span style={{ fontSize: '0.8rem', color: '#cbd5e1' }}>{selectedService.description}</span>
+              <div className="divider" style={{ margin: '1rem 0', background: 'rgba(255,255,255,0.05)', height: '1px' }} />
+              <div style={{ display: 'flex', flexDirection: 'column', gap: '0.5rem' }}>
+                <span style={{ fontSize: '0.75rem', color: '#a1a1aa', textTransform: 'uppercase', letterSpacing: '0.05em', fontWeight: 700 }}>Catatan Pusat:</span>
+                <span style={{ fontSize: '0.8rem', color: '#fbbf24', background: 'rgba(251,191,36,0.1)', padding: '0.75rem', borderRadius: '8px', lineHeight: '1.5' }}>
+                  {selectedService.description}
+                </span>
               </div>
             </>
           )}
