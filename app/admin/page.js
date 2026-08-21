@@ -213,7 +213,7 @@ function OverviewPage({ orders, syncing, onSync }) {
 }
 
 // ===== ORDERS PAGE =====
-function OrdersPage({ orders, loading, processingId, onProcess, onRefresh }) {
+function OrdersPage({ orders, loading, processingId, onProcess, onReject, onRefresh }) {
   return (
     <div>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
@@ -252,6 +252,7 @@ function OrdersPage({ orders, loading, processingId, onProcess, onRefresh }) {
                 <th>Target</th>
                 <th>Jumlah</th>
                 <th>Total</th>
+                <th>Bukti Bayar</th>
                 <th>Status</th>
                 <th>Aksi</th>
               </tr>
@@ -270,27 +271,54 @@ function OrdersPage({ orders, loading, processingId, onProcess, onRefresh }) {
                     <td>{order.quantity.toLocaleString('id-ID')}</td>
                     <td style={{ color: '#34d399', fontWeight: 700 }}>Rp{order.price.toLocaleString('id-ID')}</td>
                     <td>
+                      {order.receipt_url ? (
+                        <a href={order.receipt_url} target="_blank" rel="noreferrer" style={{ color: '#38bdf8', textDecoration: 'underline', fontWeight: 600 }}>
+                          Lihat Bukti 📸
+                        </a>
+                      ) : (
+                        <span style={{ color: '#64748b' }}>-</span>
+                      )}
+                    </td>
+                    <td>
                       <span className={`status-badge status-${order.status}`}>{order.status.toUpperCase()}</span>
                     </td>
                     <td>
                       {order.status === 'pending' && (
-                        <button
-                          onClick={() => onProcess(order.id)}
-                          disabled={processingId === order.id}
-                          style={{
-                            background: processingId === order.id ? 'rgba(124,58,237,0.3)' : 'rgba(124,58,237,0.8)',
-                            color: '#fff',
-                            border: 'none',
-                            padding: '0.4rem 0.85rem',
-                            borderRadius: '8px',
-                            fontSize: '0.8rem',
-                            fontWeight: 700,
-                            fontFamily: 'inherit',
-                            cursor: processingId === order.id ? 'not-allowed' : 'pointer',
-                          }}
-                        >
-                          {processingId === order.id ? '⏳ ...' : '🚀 Proses'}
-                        </button>
+                        <div style={{ display: 'flex', gap: '0.4rem' }}>
+                          <button
+                            onClick={() => onProcess(order.id)}
+                            disabled={processingId === order.id}
+                            style={{
+                              background: processingId === order.id ? 'rgba(16,185,129,0.3)' : 'rgba(16,185,129,0.8)',
+                              color: '#fff',
+                              border: 'none',
+                              padding: '0.4rem 0.6rem',
+                              borderRadius: '8px',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: processingId === order.id ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            {processingId === order.id ? '⏳ ...' : '✅ Proses'}
+                          </button>
+                          
+                          <button
+                            onClick={() => onReject(order.id)}
+                            disabled={processingId === order.id}
+                            style={{
+                              background: processingId === order.id ? 'rgba(239,68,68,0.3)' : 'rgba(239,68,68,0.8)',
+                              color: '#fff',
+                              border: 'none',
+                              padding: '0.4rem 0.6rem',
+                              borderRadius: '8px',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: processingId === order.id ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            ❌ Tolak
+                          </button>
+                        </div>
                       )}
                     </td>
                   </tr>
@@ -352,6 +380,24 @@ export default function AdminDashboard() {
     setProcessingId(null);
   };
 
+  const handleRejectOrder = async (orderId) => {
+    if (!confirm('Yakin mau MENOLAK pesanan ini? Status akan jadi FAILED.')) return;
+    setProcessingId(orderId);
+    try {
+      const { error } = await supabase
+        .from('smm_orders')
+        .update({ status: 'failed' })
+        .eq('id', orderId);
+      
+      if (error) throw error;
+      alert('Pesanan berhasil ditolak.');
+      fetchOrders();
+    } catch (error) {
+      alert('Gagal tolak pesanan: ' + error.message);
+    }
+    setProcessingId(null);
+  };
+
   const handleSyncServices = async () => {
     if (!confirm('Yakin mau sinkronisasi layanan sekarang? Ini akan menghapus layanan lama dan mengambil layanan terbaru dari IrvanKede.')) return;
     setSyncing(true);
@@ -391,6 +437,7 @@ export default function AdminDashboard() {
             loading={loading}
             processingId={processingId}
             onProcess={handleProcessOrder}
+            onReject={handleRejectOrder}
             onRefresh={fetchOrders}
           />
         )}
