@@ -53,8 +53,9 @@ export async function POST(req) {
 
     const irvanData = await res.json();
 
-    if (!irvanData.status) {
-      return NextResponse.json({ status: false, message: irvanData.data });
+    if (irvanData.status === false || irvanData.error) {
+      const errorMsg = irvanData.data || irvanData.error || irvanData.message || JSON.stringify(irvanData);
+      return NextResponse.json({ status: false, message: errorMsg });
     }
 
     // 3. Kalau sukses, update status di Supabase jadi 'completed'
