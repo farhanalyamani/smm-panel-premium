@@ -1,69 +1,44 @@
-import Image from "next/image";
-import styles from "./page.module.css";
+import OrderForm from './components/OrderForm';
 
 export default function Home() {
+  const sosmedCategories = [
+    { name: 'Instagram', desc: 'Followers, Likes & Views', icon: '📸' },
+    { name: 'TikTok', desc: 'Followers, Likes & Views', icon: '🎵' },
+    { name: 'YouTube', desc: 'Subscribers & Jam Tayang', icon: '▶️' },
+    { name: 'Shopee', desc: 'Followers & Likes Produk', icon: '🛍️' },
+    { name: 'Twitter/X', desc: 'Followers & Retweets', icon: '🐦' },
+    { name: 'Facebook', desc: 'Page Likes & Followers', icon: '📘' }
+  ];
+
   return (
-    <div className={styles.page}>
-      <main className={styles.main}>
-        <Image
-          className={styles.logo}
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className={styles.intro}>
-          <h1>
-            To get started, edit the{" "}
-            <code className={styles.code}>page.js</code> file.
-          </h1>
-          <p>
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className={styles.ctas}>
-          <a
-            className={styles.primary}
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className={styles.logo}
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={14}
-            />
-            Deploy Now
-          </a>
-          <a
-            className={styles.secondary}
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
-    </div>
+    <main style={{ padding: '4rem 5%', maxWidth: '1200px', margin: '0 auto' }}>
+      {/* Hero Section */}
+      <div style={{ textAlign: 'center', marginBottom: '4rem' }}>
+        <h1 style={{ fontSize: '3.5rem', fontWeight: '700', marginBottom: '1rem' }}>
+          Tingkatkan <span className="gradient-text">Engagement</span><br />Sosmed Kamu Instan!
+        </h1>
+        <p style={{ color: '#a1a1aa', fontSize: '1.2rem', maxWidth: '600px', margin: '0 auto' }}>
+          Platform termurah & terpercaya buat kebutuhan optimasi sosial media. Proses cepat, harga tangan pertama (reseller).
+        </p>
+      </div>
+
+      {/* Categories Grid */}
+      <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(250px, 1fr))', gap: '1.5rem' }}>
+        {sosmedCategories.map((cat, idx) => (
+          <div key={idx} className="glass-card" style={{ display: 'flex', alignItems: 'center', gap: '1rem' }}>
+            <div style={{ fontSize: '2.5rem', background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '12px' }}>
+              {cat.icon}
+            </div>
+            <div>
+              <h3 style={{ fontSize: '1.2rem', marginBottom: '0.2rem' }}>{cat.name}</h3>
+              <p style={{ color: '#a1a1aa', fontSize: '0.9rem' }}>{cat.desc}</p>
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {/* Bagian Order Form */}
+      <OrderForm />
+    </main>
   );
 }
