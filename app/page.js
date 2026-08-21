@@ -1,5 +1,6 @@
 'use client';
 import { useState, useEffect, useRef } from 'react';
+import { supabase } from '@/lib/supabase';
 import OrderForm from './components/OrderForm';
 
 // ===== ANIMATED COUNTER =====
@@ -146,6 +147,25 @@ const steps = [
 ];
 
 export default function Home() {
+  const [showTrackModal, setShowTrackModal] = useState(false);
+  const [trackId, setTrackId] = useState('');
+  const [trackResult, setTrackResult] = useState(null);
+  const [isTracking, setIsTracking] = useState(false);
+
+  const handleTrackOrder = async () => {
+    if (!trackId) return;
+    setIsTracking(true);
+    setTrackResult(null);
+    const id = trackId.replace('#', '').trim();
+    const { data, error } = await supabase.from('smm_orders').select('*').eq('id', id).single();
+    if (error || !data) {
+      setTrackResult({ notFound: true });
+    } else {
+      setTrackResult(data);
+    }
+    setIsTracking(false);
+  };
+
   return (
     <>
       <FloatingParticles />
@@ -166,6 +186,23 @@ export default function Home() {
           <p>
             Platform SMM tangan pertama. Followers, Likes, Views, Jam Tayang — proses cepat, harga reseller, anti ribet.
           </p>
+          <div style={{ marginTop: '1.5rem', display: 'flex', justifyContent: 'center', gap: '1rem', flexWrap: 'wrap' }}>
+            <button 
+              onClick={() => {
+                const el = document.querySelector('.order-section');
+                if (el) el.scrollIntoView({ behavior: 'smooth' });
+              }}
+              style={{ padding: '0.8rem 1.5rem', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', border: 'none', borderRadius: '99px', color: '#fff', fontWeight: 700, cursor: 'pointer', boxShadow: '0 4px 15px rgba(124, 58, 237, 0.4)' }}
+            >
+              🚀 Pesan Sekarang
+            </button>
+            <button 
+              onClick={() => setShowTrackModal(true)}
+              style={{ padding: '0.8rem 1.5rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '99px', color: '#f1f5f9', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem' }}
+            >
+              🔍 Lacak Pesanan
+            </button>
+          </div>
         </section>
 
         {/* Stats Row — Animated Counters */}
@@ -246,6 +283,99 @@ export default function Home() {
           © 2026 SocialBoost — Semua hak dilindungi
         </footer>
       </main>
+
+      {/* ================= MODAL TRACKING ================= */}
+      {showTrackModal && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '400px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>🔍 Lacak Pesanan</h3>
+              <button 
+                onClick={() => { setShowTrackModal(false); setTrackResult(null); setTrackId(''); }}
+                style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '1.2rem', cursor: 'pointer' }}
+              >✕</button>
+            </div>
+            
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem' }}>
+              Masukkan ID Pesanan (Resi) yang kamu dapatkan saat memesan.
+            </p>
+
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              <input 
+                type="text" 
+                placeholder="Contoh: 1024" 
+                value={trackId}
+                onChange={(e) => setTrackId(e.target.value)}
+                style={{ flex: 1, padding: '0.8rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '0.9rem' }}
+              />
+              <button 
+                onClick={handleTrackOrder}
+                disabled={isTracking || !trackId}
+                style={{ padding: '0 1.2rem', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', border: 'none', borderRadius: '10px', color: '#fff', fontWeight: 700, cursor: (!trackId || isTracking) ? 'not-allowed' : 'pointer', opacity: (!trackId || isTracking) ? 0.6 : 1 }}
+              >
+                {isTracking ? '⏳' : 'Cek'}
+              </button>
+            </div>
+
+            {/* HASIL TRACKING */}
+            {trackResult && (
+              <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '1.25rem', animation: 'fade-in 0.3s ease' }}>
+                {trackResult.notFound ? (
+                  <div style={{ textAlign: 'center', color: '#f87171' }}>
+                    <div style={{ fontSize: '2rem', marginBottom: '0.5rem' }}>❌</div>
+                    <strong style={{ fontSize: '1rem', display: 'block' }}>Pesanan Tidak Ditemukan</strong>
+                    <span style={{ fontSize: '0.8rem', color: '#94a3b8' }}>Pastikan ID pesanan yang dimasukkan sudah benar.</span>
+                  </div>
+                ) : (
+                  <div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '0.75rem', borderBottom: '1px dashed rgba(255,255,255,0.1)', paddingBottom: '0.75rem' }}>
+                      <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>Layanan</span>
+                      <strong style={{ fontSize: '0.85rem', textAlign: 'right', maxWidth: '60%' }}>{trackResult.service_name.split('|')[0]}</strong>
+                    </div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', marginBottom: '1rem' }}>
+                      <span style={{ color: '#94a3b8', fontSize: '0.8rem' }}>Target</span>
+                      <strong style={{ fontSize: '0.85rem' }}>{trackResult.target}</strong>
+                    </div>
+                    
+                    <div style={{ background: 'rgba(0,0,0,0.2)', padding: '1rem', borderRadius: '10px', textAlign: 'center' }}>
+                      <span style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.1em', marginBottom: '0.5rem' }}>Status Pesanan</span>
+                      
+                      {trackResult.status === 'pending' && (
+                        <div style={{ color: '#fbbf24', fontWeight: 800, fontSize: '1.2rem' }}>⏳ MENUNGGU VERIFIKASI</div>
+                      )}
+                      
+                      {(trackResult.status === 'processing' || trackResult.status === 'in progress') && (
+                        <div style={{ color: '#38bdf8', fontWeight: 800, fontSize: '1.2rem' }}>🚀 SEDANG DIPROSES</div>
+                      )}
+                      
+                      {trackResult.status === 'completed' && (
+                        <div style={{ color: '#34d399', fontWeight: 800, fontSize: '1.2rem' }}>✅ SELESAI</div>
+                      )}
+                      
+                      {(trackResult.status === 'failed' || trackResult.status === 'error' || trackResult.status === 'canceled') && (
+                        <div>
+                          <div style={{ color: '#f87171', fontWeight: 800, fontSize: '1.2rem', marginBottom: '0.5rem' }}>❌ DITOLAK / GAGAL</div>
+                          <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
+                            Bukti pembayaran tidak sah atau target salah.
+                          </p>
+                          <a 
+                            href="https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20mau%20komplain%20pesanan%20dengan%20ID%20%23" 
+                            target="_blank" 
+                            rel="noreferrer"
+                            style={{ display: 'inline-block', padding: '0.6rem 1rem', background: '#25D366', color: '#fff', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}
+                          >
+                            💬 Hubungi Admin
+                          </a>
+                        </div>
+                      )}
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
     </>
   );
 }

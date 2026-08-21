@@ -95,6 +95,7 @@ export default function OrderForm() {
   // Modal State
   const [showModal, setShowModal] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [createdOrderId, setCreatedOrderId] = useState(null);
   const [receiptFile, setReceiptFile] = useState(null);
   const [uploading, setUploading] = useState(false);
 
@@ -186,7 +187,7 @@ export default function OrderForm() {
     const receiptUrl = publicUrlData.publicUrl;
 
     // 2. Insert ke tabel pesanan
-    const { error: dbError } = await supabase.from('smm_orders').insert([{
+    const { data: dbData, error: dbError } = await supabase.from('smm_orders').insert([{
       service_id: selectedService.service_id,
       service_name: selectedService.name,
       target, 
@@ -194,12 +195,16 @@ export default function OrderForm() {
       price: total, 
       status: 'pending',
       receipt_url: receiptUrl // Kolom baru!
-    }]);
+    }]).select();
 
     if (dbError) { 
       alert('Gagal mencatat pesanan ke database: ' + dbError.message); 
       setUploading(false); 
       return; 
+    }
+
+    if (dbData && dbData.length > 0) {
+      setCreatedOrderId(dbData[0].id);
     }
 
     setShowModal(false);
@@ -499,9 +504,16 @@ export default function OrderForm() {
             <h3 style={{ fontSize: '1.4rem', fontWeight: 800, marginBottom: '0.75rem', background: 'linear-gradient(135deg, #34d399, #10b981)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
               Pesanan Berhasil!
             </h3>
-            <p style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '2rem', lineHeight: '1.6' }}>
-              Terima kasih! Bukti transfer kamu sudah kami terima dan pesanan sedang <strong style={{ color: '#f1f5f9' }}>menunggu verifikasi admin</strong>. Pantau terus jumlah followers/likes kamu ya! 🚀
+            <p style={{ fontSize: '0.9rem', color: '#94a3b8', marginBottom: '1.5rem', lineHeight: '1.6' }}>
+              Terima kasih! Bukti transfer kamu sudah kami terima dan pesanan sedang <strong style={{ color: '#f1f5f9' }}>menunggu verifikasi admin</strong>.
             </p>
+            {createdOrderId && (
+              <div style={{ background: 'rgba(255,255,255,0.05)', border: '1px dashed rgba(255,255,255,0.2)', borderRadius: '12px', padding: '1rem', marginBottom: '1.5rem' }}>
+                <span style={{ display: 'block', fontSize: '0.75rem', color: '#94a3b8', textTransform: 'uppercase', letterSpacing: '0.05em', marginBottom: '0.2rem' }}>ID Pesanan Kamu</span>
+                <strong style={{ fontSize: '1.5rem', color: '#f1f5f9', letterSpacing: '2px' }}>#{createdOrderId}</strong>
+                <span style={{ display: 'block', fontSize: '0.7rem', color: '#fbbf24', marginTop: '0.4rem' }}>⚠️ Simpan ID ini untuk melacak status pesanan!</span>
+              </div>
+            )}
             <button 
               onClick={() => {
                 setShowSuccessModal(false);
