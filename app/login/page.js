@@ -37,12 +37,12 @@ export default function LoginPage() {
   return (
     <div className="login-wrapper">
       <div className="login-card">
-        <div style={{ fontSize: '2.5rem', marginBottom: '0.75rem' }}>🔐</div>
-        <h1 style={{ fontSize: '1.5rem', fontWeight: 800, marginBottom: '0.4rem' }}>
-          Masuk ke Akun
+        <div style={{ fontSize: '3rem', marginBottom: '1rem', animation: 'pop-in 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275)' }}>🔐</div>
+        <h1 style={{ fontSize: '1.75rem', fontWeight: 800, marginBottom: '0.4rem', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', WebkitBackgroundClip: 'text', WebkitTextFillColor: 'transparent' }}>
+          Portal Admin
         </h1>
-        <p style={{ color: '#64748b', fontSize: '0.875rem', marginBottom: '1.75rem' }}>
-          Silakan login untuk melanjutkan
+        <p style={{ color: '#94a3b8', fontSize: '0.9rem', marginBottom: '2rem' }}>
+          Silakan masuk untuk mengelola pesanan.
         </p>
 
         <form onSubmit={handleLogin} style={{ display: 'flex', flexDirection: 'column', gap: '1rem' }}>
@@ -53,6 +53,7 @@ export default function LoginPage() {
             value={username}
             onChange={(e) => setUsername(e.target.value)}
             autoComplete="username"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '0.85rem 1rem', color: '#fff' }}
             required
           />
           <input
@@ -62,6 +63,7 @@ export default function LoginPage() {
             value={password}
             onChange={(e) => setPassword(e.target.value)}
             autoComplete="current-password"
+            style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '0.85rem 1rem', color: '#fff' }}
             required
           />
 
@@ -73,13 +75,29 @@ export default function LoginPage() {
 
           <button
             type="submit"
-            className="btn-primary"
             disabled={loading}
-            style={{ marginTop: '0.5rem', padding: '1rem' }}
+            style={{ 
+              marginTop: '1rem', 
+              padding: '1rem', 
+              background: 'linear-gradient(135deg, #7c3aed, #ec4899)', 
+              border: 'none', 
+              borderRadius: '12px', 
+              color: '#fff', 
+              fontWeight: 800, 
+              fontSize: '1rem',
+              cursor: loading ? 'not-allowed' : 'pointer',
+              opacity: loading ? 0.7 : 1,
+              boxShadow: '0 4px 15px rgba(124, 58, 237, 0.4)',
+              transition: 'all 0.2s ease'
+            }}
           >
-            {loading ? '⏳ Memproses...' : 'Masuk'}
+            {loading ? '⏳ Memproses...' : '🚀 Masuk Sekarang'}
           </button>
         </form>
+        
+        <div style={{ marginTop: '2rem', fontSize: '0.75rem', color: '#475569', fontWeight: 600, letterSpacing: '0.05em' }}>
+          SECURE SMM PANEL ACCESS
+        </div>
       </div>
     </div>
   );
