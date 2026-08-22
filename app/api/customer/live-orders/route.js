@@ -19,13 +19,13 @@ const censorTarget = (target) => {
 
   // Jika target adalah username dengan @ (misal: @farhanalyamani)
   if (target.startsWith('@')) {
-    if (target.length <= 4) return '@***';
-    return target.substring(0, 4) + '***';
+    if (target.length <= 3) return '@***';
+    return target.substring(0, 3) + '***'; // Tampil @ + 2 huruf (misal: @fa***)
   }
 
   // Fallback string biasa (misal: farhanalyamani)
-  if (target.length <= 3) return '***';
-  return target.substring(0, 3) + '***';
+  if (target.length <= 2) return '***';
+  return target.substring(0, 2) + '***'; // Tampil 2 huruf (misal: fa***)
 };
 
 export async function GET() {
