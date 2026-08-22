@@ -32,7 +32,7 @@ export async function POST(req) {
       return NextResponse.json({ status: false, message: 'Pesanan tidak ditemukan' }, { status: 404 });
     }
 
-    if (orderData.status === 'completed') {
+    if (orderData.status === 'completed' || orderData.status === 'processing') {
       return NextResponse.json({ status: false, message: 'Pesanan ini sudah pernah diproses!' }, { status: 400 });
     }
 
@@ -58,13 +58,13 @@ export async function POST(req) {
       return NextResponse.json({ status: false, message: errorMsg });
     }
 
-    // 3. Kalau sukses, update status di Supabase jadi 'completed'
+    // 3. Kalau sukses, update status di Supabase jadi 'processing'
     // Asumsi balasan Irvan Kede memiliki format data.id untuk order ID.
     const providerOrderId = irvanData.data && irvanData.data.id ? irvanData.data.id.toString() : null;
 
     await supabase
       .from('smm_orders')
-      .update({ status: 'completed', provider_order_id: providerOrderId })
+      .update({ status: 'processing', provider_order_id: providerOrderId })
       .eq('id', order_id);
 
     return NextResponse.json({ status: true, message: 'Pesanan sukses dikirim ke pusat!' });

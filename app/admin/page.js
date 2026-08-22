@@ -123,7 +123,7 @@ function StatCard({ label, value, icon, color }) {
 }
 
 // ===== OVERVIEW PAGE =====
-function OverviewPage({ orders, syncing, onSync }) {
+function OverviewPage({ orders, syncing, onSync, syncingOrders, onSyncOrders }) {
   const pending = orders.filter(o => o.status === 'pending').length;
   const completed = orders.filter(o => o.status === 'completed').length;
   const totalRevenue = orders.filter(o => o.status === 'completed').reduce((a, o) => a + o.price, 0);
@@ -135,27 +135,50 @@ function OverviewPage({ orders, syncing, onSync }) {
           <h1 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '0.2rem' }}>Selamat Datang, Admin 👋</h1>
           <p style={{ color: '#475569', fontSize: '0.9rem' }}>Ringkasan performa bisnis SocialBooster hari ini.</p>
         </div>
-        <button
-          onClick={onSync}
-          disabled={syncing}
-          style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.5rem',
-            background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
-            color: '#fff',
-            border: 'none',
-            padding: '0.7rem 1.25rem',
-            borderRadius: '10px',
-            fontWeight: 700,
-            fontFamily: 'inherit',
-            fontSize: '0.875rem',
-            cursor: syncing ? 'not-allowed' : 'pointer',
-            opacity: syncing ? 0.7 : 1,
-          }}
-        >
-          {syncing ? '⏳ Menyinkronkan...' : '🔄 Sinkronkan Layanan'}
-        </button>
+        <div style={{ display: 'flex', gap: '0.75rem', flexWrap: 'wrap' }}>
+          <button
+            onClick={onSyncOrders}
+            disabled={syncingOrders}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'rgba(56,189,248,0.1)',
+              border: '1px solid rgba(56,189,248,0.3)',
+              color: '#38bdf8',
+              padding: '0.7rem 1.25rem',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontFamily: 'inherit',
+              fontSize: '0.875rem',
+              cursor: syncingOrders ? 'not-allowed' : 'pointer',
+              opacity: syncingOrders ? 0.7 : 1,
+            }}
+          >
+            {syncingOrders ? '⏳ Menyinkronkan...' : '🔄 Sinkron Status Pusat'}
+          </button>
+          <button
+            onClick={onSync}
+            disabled={syncing}
+            style={{
+              display: 'flex',
+              alignItems: 'center',
+              gap: '0.5rem',
+              background: 'linear-gradient(135deg, #7c3aed, #ec4899)',
+              color: '#fff',
+              border: 'none',
+              padding: '0.7rem 1.25rem',
+              borderRadius: '10px',
+              fontWeight: 700,
+              fontFamily: 'inherit',
+              fontSize: '0.875rem',
+              cursor: syncing ? 'not-allowed' : 'pointer',
+              opacity: syncing ? 0.7 : 1,
+            }}
+          >
+            {syncing ? '⏳ Menyinkronkan...' : '🔄 Sinkron Layanan'}
+          </button>
+        </div>
       </div>
 
       {/* Stats Grid */}
@@ -473,6 +496,7 @@ export default function AdminDashboard() {
   const [loading, setLoading] = useState(true);
   const [processingId, setProcessingId] = useState(null);
   const [syncing, setSyncing] = useState(false);
+  const [isSyncingOrders, setIsSyncingOrders] = useState(false);
   const [activePage, setActivePage] = useState('overview');
   const router = useRouter();
 
@@ -554,6 +578,21 @@ export default function AdminDashboard() {
     setSyncing(false);
   };
 
+  const handleSyncOrdersStatus = async () => {
+    setIsSyncingOrders(true);
+    try {
+      const res = await fetch('/api/admin/sync-orders', { method: 'POST' });
+      const result = await res.json();
+      alert(result.status ? result.message : 'Gagal Sync: ' + result.message);
+      if (result.status && result.updated_count > 0) {
+        fetchOrders();
+      }
+    } catch (error) {
+      alert('Error system saat sync status: ' + error.message);
+    }
+    setIsSyncingOrders(false);
+  };
+
   const handleLogout = async () => {
     try {
       await fetch('/api/logout', { method: 'POST' });
@@ -577,7 +616,7 @@ export default function AdminDashboard() {
       {/* Main Content */}
       <main style={{ flex: 1, padding: '2rem 2rem', overflowY: 'auto', maxWidth: '100%' }}>
         {activePage === 'overview' && (
-          <OverviewPage orders={orders} syncing={syncing} onSync={handleSyncServices} />
+          <OverviewPage orders={orders} syncing={syncing} onSync={handleSyncServices} syncingOrders={isSyncingOrders} onSyncOrders={handleSyncOrdersStatus} />
         )}
         {activePage === 'orders' && (
           <OrdersPage
