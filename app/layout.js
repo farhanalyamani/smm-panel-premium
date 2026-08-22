@@ -1,5 +1,5 @@
 import "./globals.css";
-import Logo from "./components/Logo";
+import Navbar from "./components/Navbar";
 
 export const metadata = {
   title: "SocialBoost | SMM Panel Premium",
@@ -11,14 +11,7 @@ export default function RootLayout({ children }) {
     <html lang="id">
       <body>
         <div className="main-wrapper">
-          <nav className="navbar">
-            <a href="/" style={{ textDecoration: 'none' }}>
-              <Logo size="1.35rem" />
-            </a>
-            <a href="/admin" style={{ textDecoration: 'none' }}>
-              <button className="btn-primary btn-sm">Login</button>
-            </a>
-          </nav>
+          <Navbar />
           {children}
         </div>
       </body>
