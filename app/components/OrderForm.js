@@ -186,25 +186,31 @@ export default function OrderForm() {
     
     const receiptUrl = publicUrlData.publicUrl;
 
-    // 2. Insert ke tabel pesanan
-    const { data: dbData, error: dbError } = await supabase.from('smm_orders').insert([{
-      service_id: selectedService.service_id,
-      service_name: selectedService.name,
-      target, 
-      quantity: qty, 
-      price: total, 
-      status: 'pending',
-      receipt_url: receiptUrl // Kolom baru!
-    }]).select();
-
-    if (dbError) { 
-      alert('Gagal mencatat pesanan ke database: ' + dbError.message); 
+    // 2. Insert ke tabel pesanan lewat API (biar aman dari blokir RLS saat ngambil ID balasan)
+    try {
+      const res = await fetch('/api/customer/order', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          service_id: selectedService.service_id,
+          service_name: selectedService.name,
+          target, 
+          quantity: qty, 
+          price: total, 
+          receipt_url: receiptUrl
+        })
+      });
+      const result = await res.json();
+      
+      if (!result.status) throw new Error(result.message);
+      
+      if (result.data) {
+        setCreatedOrderId(result.data.id);
+      }
+    } catch (error) {
+      alert('Gagal mencatat pesanan ke database: ' + error.message); 
       setUploading(false); 
       return; 
-    }
-
-    if (dbData && dbData.length > 0) {
-      setCreatedOrderId(dbData[0].id);
     }
 
     setShowModal(false);
