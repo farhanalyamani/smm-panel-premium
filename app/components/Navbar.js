@@ -17,9 +17,7 @@ export default function Navbar() {
         <Logo size="1.35rem" />
       </a>
       <div style={{ display: 'flex', gap: '1rem', alignItems: 'center' }}>
-        <a href="/live" style={{ textDecoration: 'none', color: '#f87171', fontWeight: 700, fontSize: '0.9rem', display: 'flex', alignItems: 'center', gap: '0.3rem' }}>
-          <span style={{ animation: 'pulse-badge 2s ease-in-out infinite' }}>🔴</span> Live Orders
-        </a>
+
         {pathname !== '/live' && (
           <a href="/admin" style={{ textDecoration: 'none' }}>
             <button className="btn-primary btn-sm">Login</button>
