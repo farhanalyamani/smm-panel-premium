@@ -157,11 +157,13 @@ export default function Home() {
     setIsTracking(true);
     setTrackResult(null);
     const id = trackId.replace('#', '').trim();
-    const { data, error } = await supabase.from('smm_orders').select('*').eq('id', id).single();
-    if (error || !data) {
+    try {
+      const res = await fetch(`/api/customer/track?id=${id}`);
+      const result = await res.json();
+      if (!result.status) throw new Error(result.message);
+      setTrackResult(result.data);
+    } catch (error) {
       setTrackResult({ notFound: true });
-    } else {
-      setTrackResult(data);
     }
     setIsTracking(false);
   };
