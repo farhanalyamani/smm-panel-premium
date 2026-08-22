@@ -370,7 +370,7 @@ export default function Home() {
         </div>
 
         <footer className="footer">
-          © 2026 SocialBoost — Semua hak dilindungi
+          © 2026 SocialBooster — Semua hak dilindungi
         </footer>
       </main>
 

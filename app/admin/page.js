@@ -133,7 +133,7 @@ function OverviewPage({ orders, syncing, onSync }) {
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '1.75rem', flexWrap: 'wrap', gap: '1rem' }}>
         <div>
           <h1 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '0.2rem' }}>Selamat Datang, Admin 👋</h1>
-          <p style={{ color: '#475569', fontSize: '0.9rem' }}>Ringkasan performa bisnis SocialBoost hari ini.</p>
+          <p style={{ color: '#475569', fontSize: '0.9rem' }}>Ringkasan performa bisnis SocialBooster hari ini.</p>
         </div>
         <button
           onClick={onSync}

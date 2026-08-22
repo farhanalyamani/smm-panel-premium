@@ -2,7 +2,7 @@ import "./globals.css";
 import Navbar from "./components/Navbar";
 
 export const metadata = {
-  title: "SocialBoost | SMM Panel Premium",
+  title: "SocialBooster | SMM Panel Premium",
   description: "Platform termurah & terpercaya buat followers, likes, views sosial media. Proses otomatis, harga tangan pertama.",
 };
 

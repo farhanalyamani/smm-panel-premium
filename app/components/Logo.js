@@ -53,7 +53,7 @@ export default function Logo({ size = '1.5rem', withText = true }) {
           WebkitTextFillColor: 'transparent',
           lineHeight: 1
         }}>
-          SocialBoost<span style={{ WebkitTextFillColor: '#fff' }}>.</span>
+          SocialBooster<span style={{ WebkitTextFillColor: '#fff' }}>.</span>
         </div>
       )}
     </div>

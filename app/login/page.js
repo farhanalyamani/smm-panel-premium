@@ -180,7 +180,7 @@ export default function LoginPage() {
 
           {/* Footer credit */}
           <div style={{ fontSize: '0.72rem', color: '#334155' }}>
-            © 2026 SocialBoost · Digital Kreatif
+            © 2026 SocialBooster · Digital Kreatif
           </div>
         </div>
 
