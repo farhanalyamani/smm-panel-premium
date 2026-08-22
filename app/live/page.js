@@ -1,7 +1,6 @@
 'use client';
 import { useState, useEffect } from 'react';
 import Link from 'next/link';
-import Navbar from '../components/Navbar';
 
 export default function LiveOrdersPage() {
   const [liveOrders, setLiveOrders] = useState([]);
@@ -30,7 +29,6 @@ export default function LiveOrdersPage() {
 
   return (
     <>
-      <Navbar />
       <main style={{ minHeight: '100vh', padding: '6rem 1rem 2rem', background: '#020617', color: '#f8fafc', position: 'relative' }}>
         
         {/* Background Gradients */}
