@@ -207,6 +207,7 @@ function OverviewPage({ orders, syncing, onSync }) {
 // ===== VENDOR STATUS PAGE =====
 function VendorStatusPage({ orders }) {
   const [checkingId, setCheckingId] = useState(null);
+  const [statusModal, setStatusModal] = useState(null); // Data buat modal
   
   // Filter hanya order yang statusnya completed (sudah dilempar ke IrvanKede) dan punya provider_order_id
   const vendorOrders = orders.filter(o => o.status === 'completed' && o.provider_order_id);
@@ -223,10 +224,14 @@ function VendorStatusPage({ orders }) {
       
       if (result.status) {
         const d = result.data;
-        // Format response status dari IrvanKede biasanya: status, start_count, remains
-        alert(`Status Pusat: ${d.status}\nStart Count: ${d.start_count || 0}\nSisa (Remains): ${d.remains || 0}`);
+        setStatusModal({
+          success: true,
+          status: d.status,
+          start_count: d.start_count || 0,
+          remains: d.remains || 0
+        });
       } else {
-        alert('Gagal cek status: ' + result.message);
+        setStatusModal({ success: false, message: result.message });
       }
     } catch (error) {
       alert('Error system: ' + error.message);
@@ -290,6 +295,36 @@ function VendorStatusPage({ orders }) {
           </table>
         </div>
       </div>
+
+      {/* Modal Status Live */}
+      {statusModal && (
+        <div className="modal-overlay">
+          <div className="modal-content" style={{ maxWidth: '350px', textAlign: 'center' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 800, marginBottom: '1rem', color: '#fff' }}>
+              🔍 Hasil Pelacakan Pusat
+            </h3>
+            
+            {statusModal.success ? (
+              <div style={{ background: 'rgba(255,255,255,0.05)', padding: '1rem', borderRadius: '12px', border: '1px solid rgba(255,255,255,0.1)', textAlign: 'left' }}>
+                <p style={{ margin: '0 0 0.5rem 0', color: '#94a3b8' }}>Status: <strong style={{ color: '#38bdf8' }}>{statusModal.status}</strong></p>
+                <p style={{ margin: '0 0 0.5rem 0', color: '#94a3b8' }}>Start Count: <strong style={{ color: '#fff' }}>{statusModal.start_count}</strong></p>
+                <p style={{ margin: '0', color: '#94a3b8' }}>Sisa (Remains): <strong style={{ color: '#fff' }}>{statusModal.remains}</strong></p>
+              </div>
+            ) : (
+              <div style={{ color: '#ef4444', padding: '1rem', background: 'rgba(239, 68, 68, 0.1)', borderRadius: '12px' }}>
+                {statusModal.message}
+              </div>
+            )}
+
+            <button 
+              onClick={() => setStatusModal(null)}
+              style={{ marginTop: '1.5rem', width: '100%', padding: '0.8rem', background: '#3b82f6', color: '#fff', border: 'none', borderRadius: '10px', fontWeight: 700, cursor: 'pointer' }}
+            >
+              Tutup
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }
