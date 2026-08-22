@@ -293,12 +293,6 @@ export default function Home() {
             >
               🔍 Lacak Pesanan
             </button>
-            <Link 
-              href="/live"
-              style={{ padding: '0.8rem 1.5rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '99px', color: '#f87171', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', animation: 'pulse-badge 2s ease-in-out infinite' }}
-            >
-              🔴 Live Orders
-            </Link>
           </div>
         </section>
 
