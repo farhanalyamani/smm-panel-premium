@@ -61,8 +61,8 @@ export async function POST() {
     // 4. Siapkan data baru dengan Mark-up Harga (Untung 20% + Rp100)
     const formattedData = services.map(s => {
       const modal = parseFloat(s.price);
-      // Untung kotor 20% + Rp100
-      let hargaJual = modal + (modal * 0.20) + 100;
+      // Untung kotor 40% + Rp100
+      let hargaJual = modal + (modal * 0.40) + 100;
       
       return {
         service_id: s.id,
