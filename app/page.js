@@ -151,11 +151,21 @@ export default function Home() {
   const [trackId, setTrackId] = useState('');
   const [trackResult, setTrackResult] = useState(null);
   const [isTracking, setIsTracking] = useState(false);
+  
+  // States for retry feature
+  const [showRetryForm, setShowRetryForm] = useState(false);
+  const [replacementServices, setReplacementServices] = useState([]);
+  const [retryServiceId, setRetryServiceId] = useState('');
+  const [retryTarget, setRetryTarget] = useState('');
+  const [isRetrying, setIsRetrying] = useState(false);
+  const [retryMessage, setRetryMessage] = useState(null);
 
   const handleTrackOrder = async () => {
     if (!trackId) return;
     setIsTracking(true);
     setTrackResult(null);
+    setShowRetryForm(false);
+    setRetryMessage(null);
     const id = trackId.replace('#', '').trim();
     try {
       const res = await fetch(`/api/customer/track?id=${id}`);
@@ -166,6 +176,47 @@ export default function Home() {
       setTrackResult({ notFound: true });
     }
     setIsTracking(false);
+  };
+
+  const handleLoadReplacementServices = async () => {
+    try {
+      const { data, error } = await supabase.from('smm_services').select('service_id, name, price, category');
+      if (error) throw error;
+      const validServices = data.filter(s => (s.price * (trackResult.quantity / 1000)) <= trackResult.price);
+      setReplacementServices(validServices);
+      if (validServices.length > 0) setRetryServiceId(validServices[0].service_id);
+      setShowRetryForm(true);
+    } catch (err) {
+      alert('Gagal memuat daftar layanan: ' + err.message);
+    }
+  };
+
+  const handleSubmitRetry = async () => {
+    if (!retryServiceId || !retryTarget) return alert('Pilih layanan dan isi target baru!');
+    setIsRetrying(true);
+    setRetryMessage(null);
+    try {
+      const res = await fetch('/api/customer/retry', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          order_id: trackResult.id,
+          new_service_id: retryServiceId,
+          new_target: retryTarget
+        })
+      });
+      const result = await res.json();
+      if (!result.status) throw new Error(result.message);
+      
+      setRetryMessage({ success: true, text: result.message });
+      // Update UI to pending
+      const newSvc = replacementServices.find(s => s.service_id == retryServiceId);
+      setTrackResult({ ...trackResult, status: 'pending', service_name: newSvc?.name || 'Layanan Baru', target: retryTarget });
+      setShowRetryForm(false);
+    } catch (err) {
+      setRetryMessage({ success: false, text: err.message });
+    }
+    setIsRetrying(false);
   };
 
   return (
@@ -358,16 +409,76 @@ export default function Home() {
                         <div>
                           <div style={{ color: '#f87171', fontWeight: 800, fontSize: '1.2rem', marginBottom: '0.5rem' }}>❌ DITOLAK / GAGAL</div>
                           <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
-                            Bukti pembayaran tidak sah atau target salah.
+                            Pesanan gagal (bisa karena salah target atau server sedang penuh). Anda bisa mengganti dengan layanan lain yang harganya sama atau lebih murah.
                           </p>
-                          <a 
-                            href="https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20mau%20komplain%20pesanan%20dengan%20ID%20%23" 
-                            target="_blank" 
-                            rel="noreferrer"
-                            style={{ display: 'inline-block', padding: '0.6rem 1rem', background: '#25D366', color: '#fff', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}
-                          >
-                            💬 Hubungi Admin
-                          </a>
+                          
+                          {retryMessage && (
+                            <div style={{ padding: '0.5rem', marginBottom: '1rem', borderRadius: '8px', fontSize: '0.8rem', background: retryMessage.success ? 'rgba(52, 211, 153, 0.1)' : 'rgba(248, 113, 113, 0.1)', color: retryMessage.success ? '#34d399' : '#f87171' }}>
+                              {retryMessage.text}
+                            </div>
+                          )}
+
+                          {!showRetryForm ? (
+                            <div style={{ display: 'flex', gap: '0.5rem', justifyContent: 'center', flexWrap: 'wrap' }}>
+                              <button 
+                                onClick={handleLoadReplacementServices}
+                                style={{ padding: '0.6rem 1rem', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', border: 'none', borderRadius: '8px', color: '#fff', fontSize: '0.8rem', fontWeight: 700, cursor: 'pointer' }}
+                              >
+                                🔄 Ganti Layanan (Gratis)
+                              </button>
+                              <a 
+                                href={`https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20mau%20komplain%20pesanan%20dengan%20ID%20%23${trackResult.id}`}
+                                target="_blank" 
+                                rel="noreferrer"
+                                style={{ display: 'inline-block', padding: '0.6rem 1rem', background: 'rgba(255,255,255,0.05)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}
+                              >
+                                💬 Hubungi Admin
+                              </a>
+                            </div>
+                          ) : (
+                            <div style={{ background: 'rgba(0,0,0,0.3)', padding: '1rem', borderRadius: '10px', marginTop: '1rem', textAlign: 'left' }}>
+                              <h4 style={{ fontSize: '0.85rem', color: '#fff', marginBottom: '0.5rem' }}>Pilih Layanan Pengganti</h4>
+                              <p style={{ fontSize: '0.7rem', color: '#94a3b8', marginBottom: '1rem' }}>Sisa kembalian (jika ada) akan hangus.</p>
+                              
+                              <select 
+                                value={retryServiceId}
+                                onChange={(e) => setRetryServiceId(e.target.value)}
+                                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#09090b', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', marginBottom: '1rem', fontSize: '0.8rem' }}
+                              >
+                                {replacementServices.map(s => (
+                                  <option key={s.service_id} value={s.service_id}>
+                                    {s.name.split('|')[0]} (Max Harga: Rp{(s.price * trackResult.quantity / 1000).toLocaleString('id-ID')})
+                                  </option>
+                                ))}
+                              </select>
+
+                              <h4 style={{ fontSize: '0.85rem', color: '#fff', marginBottom: '0.5rem' }}>Target Baru (Link/Username)</h4>
+                              <input 
+                                type="text"
+                                value={retryTarget}
+                                onChange={(e) => setRetryTarget(e.target.value)}
+                                placeholder="Masukkan link atau username target"
+                                style={{ width: '100%', padding: '0.75rem', borderRadius: '8px', background: '#09090b', border: '1px solid rgba(255,255,255,0.1)', color: '#fff', marginBottom: '1rem', fontSize: '0.8rem' }}
+                              />
+
+                              <div style={{ display: 'flex', gap: '0.5rem' }}>
+                                <button 
+                                  onClick={handleSubmitRetry}
+                                  disabled={isRetrying}
+                                  style={{ flex: 1, padding: '0.8rem', background: '#34d399', border: 'none', borderRadius: '8px', color: '#000', fontWeight: 800, cursor: isRetrying ? 'not-allowed' : 'pointer', opacity: isRetrying ? 0.7 : 1 }}
+                                >
+                                  {isRetrying ? 'Memproses...' : 'Kirim Ulang Pesanan'}
+                                </button>
+                                <button 
+                                  onClick={() => setShowRetryForm(false)}
+                                  disabled={isRetrying}
+                                  style={{ padding: '0.8rem', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '8px', color: '#fff', fontWeight: 700, cursor: 'pointer' }}
+                                >
+                                  Batal
+                                </button>
+                              </div>
+                            </div>
+                          )}
                         </div>
                       )}
                     </div>
