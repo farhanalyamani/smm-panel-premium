@@ -442,9 +442,26 @@ export default function Home() {
                         <div style={{ color: '#34d399', fontWeight: 800, fontSize: '1.2rem' }}>✅ SELESAI</div>
                       )}
                       
-                      {(trackResult.status === 'failed' || trackResult.status === 'error' || trackResult.status === 'canceled') && (
+                      {trackResult.status === 'canceled' && (
                         <div>
-                          <div style={{ color: '#f87171', fontWeight: 800, fontSize: '1.2rem', marginBottom: '0.5rem' }}>❌ DITOLAK / GAGAL</div>
+                          <div style={{ color: '#f87171', fontWeight: 800, fontSize: '1.2rem', marginBottom: '0.5rem' }}>❌ DITOLAK (PEMBAYARAN INVALID)</div>
+                          <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
+                            Pesanan dibatalkan karena bukti pembayaran tidak sah atau kurang. Silakan hubungi admin untuk konfirmasi.
+                          </p>
+                          <a 
+                            href={`https://wa.me/6281234567890?text=Halo%20Admin,%20pesanan%20saya%20dengan%20ID%20%23${trackResult.id}%20ditolak,%20boleh%20minta%20tolong%20cek%20pembayarannya?`}
+                            target="_blank" 
+                            rel="noreferrer"
+                            style={{ display: 'inline-block', padding: '0.6rem 1rem', background: '#25D366', color: '#fff', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}
+                          >
+                            💬 Hubungi Admin
+                          </a>
+                        </div>
+                      )}
+
+                      {(trackResult.status === 'failed' || trackResult.status === 'error') && (
+                        <div>
+                          <div style={{ color: '#f59e0b', fontWeight: 800, fontSize: '1.2rem', marginBottom: '0.5rem' }}>⚠️ GAGAL (SISTEM)</div>
                           <p style={{ fontSize: '0.75rem', color: '#94a3b8', marginBottom: '0.75rem' }}>
                             Pesanan gagal (bisa karena salah target atau server sedang penuh). Anda bisa mengganti dengan layanan lain yang harganya sama atau lebih murah.
                           </p>
@@ -464,7 +481,7 @@ export default function Home() {
                                 🔄 Ganti Layanan (Gratis)
                               </button>
                               <a 
-                                href={`https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20mau%20komplain%20pesanan%20dengan%20ID%20%23${trackResult.id}`}
+                                href={`https://wa.me/6281234567890?text=Halo%20Admin,%20saya%20mau%20komplain%20pesanan%20dengan%20ID%20%23${trackResult.id}%20gagal%20sistem`}
                                 target="_blank" 
                                 rel="noreferrer"
                                 style={{ display: 'inline-block', padding: '0.6rem 1rem', background: 'rgba(255,255,255,0.05)', color: '#f1f5f9', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', fontSize: '0.8rem', fontWeight: 700, textDecoration: 'none' }}

@@ -421,7 +421,7 @@ function OrdersPage({ orders, loading, processingId, onProcess, onReject, onRefr
                           </button>
                           
                           <button
-                            onClick={() => onReject(order.id)}
+                            onClick={() => onReject(order.id, 'canceled')}
                             disabled={processingId === order.id}
                             style={{
                               background: processingId === order.id ? 'rgba(239,68,68,0.3)' : 'rgba(239,68,68,0.8)',
@@ -434,7 +434,24 @@ function OrdersPage({ orders, loading, processingId, onProcess, onReject, onRefr
                               cursor: processingId === order.id ? 'not-allowed' : 'pointer',
                             }}
                           >
-                            ❌ Tolak
+                            ❌ Tolak (Pembayaran)
+                          </button>
+
+                          <button
+                            onClick={() => onReject(order.id, 'failed')}
+                            disabled={processingId === order.id}
+                            style={{
+                              background: processingId === order.id ? 'rgba(245,158,11,0.3)' : 'rgba(245,158,11,0.8)',
+                              color: '#fff',
+                              border: 'none',
+                              padding: '0.4rem 0.6rem',
+                              borderRadius: '8px',
+                              fontSize: '0.75rem',
+                              fontWeight: 700,
+                              cursor: processingId === order.id ? 'not-allowed' : 'pointer',
+                            }}
+                          >
+                            ⚠️ Gagal (Sistem)
                           </button>
                         </div>
                       )}
@@ -500,22 +517,26 @@ export default function AdminDashboard() {
     setProcessingId(null);
   };
 
-  const handleRejectOrder = async (orderId) => {
-    if (!confirm('Yakin mau MENOLAK pesanan ini? Status akan jadi FAILED.')) return;
+  const handleRejectOrder = async (orderId, reasonStatus) => {
+    const confirmMsg = reasonStatus === 'canceled' 
+      ? 'Yakin mau MENOLAK pesanan ini karena PEMBAYARAN INVALID? (Pelanggan tidak bisa ganti layanan)' 
+      : 'Yakin mau menggagalkan pesanan ini karena SISTEM DOWN? (Pelanggan bisa ganti layanan gratis)';
+    
+    if (!confirm(confirmMsg)) return;
     setProcessingId(orderId);
     try {
       const res = await fetch('/api/admin/orders', {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ order_id: orderId, status: 'failed' })
+        body: JSON.stringify({ order_id: orderId, status: reasonStatus })
       });
       const result = await res.json();
       if (!result.status) throw new Error(result.message);
       
-      alert('Pesanan berhasil ditolak.');
+      alert(reasonStatus === 'canceled' ? 'Pesanan berhasil ditolak (Pembayaran).' : 'Pesanan berhasil digagalkan (Sistem).');
       fetchOrders();
     } catch (error) {
-      alert('Gagal tolak pesanan: ' + error.message);
+      alert('Gagal update pesanan: ' + error.message);
     }
     setProcessingId(null);
   };
