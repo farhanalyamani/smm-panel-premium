@@ -430,11 +430,13 @@ export default function AdminDashboard() {
 
   const fetchOrders = async () => {
     setLoading(true);
-    const { data, error } = await supabase
-      .from('smm_orders')
-      .select('*')
-      .order('created_at', { ascending: false });
-    if (!error && data) setOrders(data);
+    try {
+      const res = await fetch('/api/admin/orders');
+      const result = await res.json();
+      if (result.status) setOrders(result.data);
+    } catch (e) {
+      console.error(e);
+    }
     setLoading(false);
   };
 
@@ -466,12 +468,14 @@ export default function AdminDashboard() {
     if (!confirm('Yakin mau MENOLAK pesanan ini? Status akan jadi FAILED.')) return;
     setProcessingId(orderId);
     try {
-      const { error } = await supabase
-        .from('smm_orders')
-        .update({ status: 'failed' })
-        .eq('id', orderId);
+      const res = await fetch('/api/admin/orders', {
+        method: 'PUT',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ order_id: orderId, status: 'failed' })
+      });
+      const result = await res.json();
+      if (!result.status) throw new Error(result.message);
       
-      if (error) throw error;
       alert('Pesanan berhasil ditolak.');
       fetchOrders();
     } catch (error) {
