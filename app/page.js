@@ -2,6 +2,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/lib/supabase';
 import OrderForm from './components/OrderForm';
+import Link from 'next/link';
 
 // ===== ANIMATED COUNTER =====
 function AnimatedCounter({ end, duration = 2000, prefix = '', suffix = '' }) {
@@ -158,11 +159,6 @@ export default function Home() {
   const [retryServiceId, setRetryServiceId] = useState('');
   const [retryTarget, setRetryTarget] = useState('');
   const [isRetrying, setIsRetrying] = useState(false);
-
-  // States for Live Orders
-  const [activeTab, setActiveTab] = useState('track'); // 'track' or 'live'
-  const [liveOrders, setLiveOrders] = useState([]);
-  const [isLiveLoading, setIsLiveLoading] = useState(false);
   const [retryMessage, setRetryMessage] = useState(null);
 
   const handleTrackOrder = async () => {
@@ -261,34 +257,6 @@ export default function Home() {
     setIsRetrying(false);
   };
 
-  useEffect(() => {
-    let intervalId;
-    
-    const fetchLiveOrders = async () => {
-      try {
-        const res = await fetch('/api/customer/live-orders');
-        const result = await res.json();
-        if (result.status) {
-          setLiveOrders(result.data);
-        }
-      } catch (err) {
-        console.error('Failed to fetch live orders:', err);
-      }
-    };
-
-    if (showTrackModal && activeTab === 'live') {
-      setIsLiveLoading(true);
-      fetchLiveOrders().finally(() => setIsLiveLoading(false));
-      
-      // Auto refresh every 10 seconds
-      intervalId = setInterval(fetchLiveOrders, 10000);
-    }
-
-    return () => {
-      if (intervalId) clearInterval(intervalId);
-    };
-  }, [showTrackModal, activeTab]);
-
   return (
     <>
       <FloatingParticles />
@@ -325,6 +293,12 @@ export default function Home() {
             >
               🔍 Lacak Pesanan
             </button>
+            <Link 
+              href="/live"
+              style={{ padding: '0.8rem 1.5rem', background: 'rgba(239,68,68,0.1)', border: '1px solid rgba(239,68,68,0.3)', borderRadius: '99px', color: '#f87171', fontWeight: 700, cursor: 'pointer', display: 'flex', alignItems: 'center', gap: '0.5rem', textDecoration: 'none', animation: 'pulse-badge 2s ease-in-out infinite' }}
+            >
+              🔴 Live Orders
+            </Link>
           </div>
         </section>
 
@@ -410,55 +384,37 @@ export default function Home() {
       {/* ================= MODAL TRACKING ================= */}
       {showTrackModal && (
         <div className="modal-overlay">
-          <div className="modal-content" style={{ maxWidth: '400px', width: '100%', padding: '1.5rem', maxHeight: '80vh', overflowY: 'auto' }}>
+          <div className="modal-content" style={{ maxWidth: '400px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>🔍 Info Pesanan</h3>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 800 }}>🔍 Lacak Pesanan</h3>
               <button 
-                onClick={() => { setShowTrackModal(false); setTrackResult(null); setTrackId(''); setActiveTab('track'); }}
+                onClick={() => { setShowTrackModal(false); setTrackResult(null); setTrackId(''); }}
                 style={{ background: 'none', border: 'none', color: '#94a3b8', fontSize: '1.2rem', cursor: 'pointer' }}
               >✕</button>
             </div>
             
-            {/* Tabs */}
-            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem', background: 'rgba(0,0,0,0.2)', padding: '0.25rem', borderRadius: '12px' }}>
-              <button
-                onClick={() => setActiveTab('track')}
-                style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', border: 'none', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', background: activeTab === 'track' ? 'linear-gradient(135deg, #7c3aed, #ec4899)' : 'transparent', color: activeTab === 'track' ? '#fff' : '#94a3b8', transition: 'all 0.2s' }}
+            <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem' }}>
+              Masukkan ID Pesanan (Resi) yang kamu dapatkan saat memesan.
+            </p>
+
+            <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
+              <input 
+                type="text" 
+                placeholder="Contoh: 1024" 
+                value={trackId}
+                onChange={(e) => setTrackId(e.target.value)}
+                style={{ flex: 1, padding: '0.8rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '0.9rem' }}
+              />
+              <button 
+                onClick={handleTrackOrder}
+                disabled={isTracking || !trackId}
+                style={{ padding: '0 1.2rem', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', border: 'none', borderRadius: '10px', color: '#fff', fontWeight: 700, cursor: (!trackId || isTracking) ? 'not-allowed' : 'pointer', opacity: (!trackId || isTracking) ? 0.6 : 1 }}
               >
-                Cek Resi
-              </button>
-              <button
-                onClick={() => setActiveTab('live')}
-                style={{ flex: 1, padding: '0.6rem', borderRadius: '8px', border: 'none', fontWeight: 700, fontSize: '0.85rem', cursor: 'pointer', background: activeTab === 'live' ? 'linear-gradient(135deg, #7c3aed, #ec4899)' : 'transparent', color: activeTab === 'live' ? '#fff' : '#94a3b8', transition: 'all 0.2s' }}
-              >
-                🔴 Live Orders
+                {isTracking ? '⏳' : 'Cek'}
               </button>
             </div>
 
-            {activeTab === 'track' && (
-              <>
-                <p style={{ fontSize: '0.85rem', color: '#94a3b8', marginBottom: '1rem' }}>
-                  Masukkan ID Pesanan (Resi) yang kamu dapatkan saat memesan.
-                </p>
-
-                <div style={{ display: 'flex', gap: '0.5rem', marginBottom: '1.5rem' }}>
-                  <input 
-                    type="text" 
-                    placeholder="Contoh: 1024" 
-                    value={trackId}
-                    onChange={(e) => setTrackId(e.target.value)}
-                    style={{ flex: 1, padding: '0.8rem', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '10px', color: '#fff', fontSize: '0.9rem' }}
-                  />
-                  <button 
-                    onClick={handleTrackOrder}
-                    disabled={isTracking || !trackId}
-                    style={{ padding: '0 1.2rem', background: 'linear-gradient(135deg, #7c3aed, #ec4899)', border: 'none', borderRadius: '10px', color: '#fff', fontWeight: 700, cursor: (!trackId || isTracking) ? 'not-allowed' : 'pointer', opacity: (!trackId || isTracking) ? 0.6 : 1 }}
-                  >
-                    {isTracking ? '⏳' : 'Cek'}
-                  </button>
-                </div>
-
-                {/* HASIL TRACKING */}
+            {/* HASIL TRACKING */}
             {trackResult && (
               <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '12px', padding: '1.25rem', animation: 'fade-in 0.3s ease' }}>
                 {trackResult.notFound ? (
@@ -587,48 +543,6 @@ export default function Home() {
                         </div>
                       )}
                     </div>
-                  </div>
-                )}
-              </div>
-            )}
-            </>
-            )}
-
-            {activeTab === 'live' && (
-              <div style={{ animation: 'fade-in 0.3s ease' }}>
-                <p style={{ fontSize: '0.8rem', color: '#94a3b8', marginBottom: '1rem', textAlign: 'center' }}>
-                  Auto-refresh setiap 10 detik. Target disensor demi keamanan.
-                </p>
-
-                {isLiveLoading && liveOrders.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '2rem 0', color: '#94a3b8' }}>Memuat pesanan... ⏳</div>
-                ) : liveOrders.length === 0 ? (
-                  <div style={{ textAlign: 'center', padding: '2rem 0', color: '#94a3b8' }}>Belum ada pesanan terbaru.</div>
-                ) : (
-                  <div style={{ display: 'flex', flexDirection: 'column', gap: '0.75rem' }}>
-                    {liveOrders.map(order => (
-                      <div key={order.id} style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '10px', padding: '0.75rem', position: 'relative', overflow: 'hidden' }}>
-                        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: '0.25rem' }}>
-                          <span style={{ fontSize: '0.75rem', color: '#94a3b8', fontWeight: 600 }}>#{order.id}</span>
-                          <span style={{ 
-                            fontSize: '0.65rem', 
-                            padding: '0.2rem 0.5rem', 
-                            borderRadius: '99px',
-                            fontWeight: 800,
-                            background: order.status === 'completed' ? 'rgba(52, 211, 153, 0.1)' : order.status === 'pending' ? 'rgba(251, 191, 36, 0.1)' : (order.status === 'failed' || order.status === 'error' || order.status === 'canceled') ? 'rgba(248, 113, 113, 0.1)' : 'rgba(56, 189, 248, 0.1)',
-                            color: order.status === 'completed' ? '#34d399' : order.status === 'pending' ? '#fbbf24' : (order.status === 'failed' || order.status === 'error' || order.status === 'canceled') ? '#f87171' : '#38bdf8'
-                          }}>
-                            {order.status.toUpperCase()}
-                          </span>
-                        </div>
-                        <div style={{ fontSize: '0.85rem', fontWeight: 700, marginBottom: '0.25rem', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>
-                          {order.service_name}
-                        </div>
-                        <div style={{ fontSize: '0.75rem', color: '#94a3b8' }}>
-                          Target: <strong style={{ color: '#fff', letterSpacing: '1px' }}>{order.target}</strong>
-                        </div>
-                      </div>
-                    ))}
                   </div>
                 )}
               </div>
