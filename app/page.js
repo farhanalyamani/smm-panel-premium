@@ -194,16 +194,29 @@ export default function Home() {
       else if (oldName.includes('twitter') || oldName.includes('x')) platform = 'twitter';
       else if (oldName.includes('spotify')) platform = 'spotify';
 
+      // Deteksi Tipe Layanan (Followers, Likes, Views, dll) biar makin spesifik
+      let type = '';
+      if (oldName.includes('follower') || oldName.includes('pengikut')) type = 'follower';
+      else if (oldName.includes('like') || oldName.includes('suka') || oldName.includes('love')) type = 'like';
+      else if (oldName.includes('view') || oldName.includes('tayang') || oldName.includes('tonton') || oldName.includes('impression')) type = 'view';
+      else if (oldName.includes('comment') || oldName.includes('komentar')) type = 'comment';
+      else if (oldName.includes('subscriber') || oldName.includes('subs')) type = 'subscriber';
+      else if (oldName.includes('share') || oldName.includes('bagikan')) type = 'share';
+      else if (oldName.includes('retweet') || oldName.includes('rt')) type = 'retweet';
+
       const validServices = data.filter(s => {
         // Cek harga
         if ((s.price * (trackResult.quantity / 1000)) > trackResult.price) return false;
         
-        // Cek platform
-        if (platform) {
-          const newName = s.name.toLowerCase();
-          const newCat = s.category.toLowerCase();
-          return newName.includes(platform) || newCat.includes(platform);
-        }
+        const newName = s.name.toLowerCase();
+        const newCat = s.category.toLowerCase();
+        
+        // Harus sesuai platform
+        if (platform && !(newName.includes(platform) || newCat.includes(platform))) return false;
+        
+        // Harus sesuai tipe (Follower cuma munculin Follower, Like cuma Like, dsb)
+        if (type && !(newName.includes(type) || newCat.includes(type) || newName.includes('pengikut') || newName.includes('suka'))) return false;
+        
         return true;
       });
 
