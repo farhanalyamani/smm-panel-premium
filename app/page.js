@@ -182,7 +182,31 @@ export default function Home() {
     try {
       const { data, error } = await supabase.from('smm_services').select('service_id, name, price, category');
       if (error) throw error;
-      const validServices = data.filter(s => (s.price * (trackResult.quantity / 1000)) <= trackResult.price);
+      
+      const oldName = trackResult.service_name.toLowerCase();
+      let platform = '';
+      if (oldName.includes('instagram') || oldName.includes('ig') || oldName.includes('pengikut')) platform = 'instagram';
+      else if (oldName.includes('tiktok')) platform = 'tiktok';
+      else if (oldName.includes('youtube') || oldName.includes('yt')) platform = 'youtube';
+      else if (oldName.includes('shopee')) platform = 'shopee';
+      else if (oldName.includes('facebook') || oldName.includes('fb')) platform = 'facebook';
+      else if (oldName.includes('telegram')) platform = 'telegram';
+      else if (oldName.includes('twitter') || oldName.includes('x')) platform = 'twitter';
+      else if (oldName.includes('spotify')) platform = 'spotify';
+
+      const validServices = data.filter(s => {
+        // Cek harga
+        if ((s.price * (trackResult.quantity / 1000)) > trackResult.price) return false;
+        
+        // Cek platform
+        if (platform) {
+          const newName = s.name.toLowerCase();
+          const newCat = s.category.toLowerCase();
+          return newName.includes(platform) || newCat.includes(platform);
+        }
+        return true;
+      });
+
       setReplacementServices(validServices);
       if (validServices.length > 0) setRetryServiceId(validServices[0].service_id);
       setShowRetryForm(true);
