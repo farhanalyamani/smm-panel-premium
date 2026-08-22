@@ -23,6 +23,7 @@ function Sidebar({ activePage, setActivePage, onLogout }) {
       height: '100dvh',
       position: 'sticky',
       top: 0,
+      overflowY: 'auto',
     }}>
       {/* Logo */}
       <div style={{
@@ -532,7 +533,12 @@ export default function AdminDashboard() {
     setSyncing(false);
   };
 
-  const handleLogout = () => {
+  const handleLogout = async () => {
+    try {
+      await fetch('/api/logout', { method: 'POST' });
+    } catch (e) {
+      console.error(e);
+    }
     localStorage.removeItem('isAdmin');
     router.push('/login');
   };
