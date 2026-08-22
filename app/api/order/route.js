@@ -59,9 +59,12 @@ export async function POST(req) {
     }
 
     // 3. Kalau sukses, update status di Supabase jadi 'completed'
+    // Asumsi balasan Irvan Kede memiliki format data.id untuk order ID.
+    const providerOrderId = irvanData.data && irvanData.data.id ? irvanData.data.id.toString() : null;
+
     await supabase
       .from('smm_orders')
-      .update({ status: 'completed' })
+      .update({ status: 'completed', provider_order_id: providerOrderId })
       .eq('id', order_id);
 
     return NextResponse.json({ status: true, message: 'Pesanan sukses dikirim ke pusat!' });

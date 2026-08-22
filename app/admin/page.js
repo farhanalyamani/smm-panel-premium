@@ -9,6 +9,7 @@ function Sidebar({ activePage, setActivePage, onLogout }) {
   const navItems = [
     { id: 'overview', icon: '📊', label: 'Overview' },
     { id: 'orders', icon: '📋', label: 'Pesanan' },
+    { id: 'vendor', icon: '🔍', label: 'Cek Pusat' },
   ];
 
   return (
@@ -194,6 +195,96 @@ function OverviewPage({ orders, syncing, onSync }) {
               ))}
               {orders.length === 0 && (
                 <tr><td colSpan="5" style={{ textAlign: 'center', color: '#475569', padding: '2rem' }}>Belum ada pesanan.</td></tr>
+              )}
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+  );
+}
+
+// ===== VENDOR STATUS PAGE =====
+function VendorStatusPage({ orders }) {
+  const [checkingId, setCheckingId] = useState(null);
+  
+  // Filter hanya order yang statusnya completed (sudah dilempar ke IrvanKede) dan punya provider_order_id
+  const vendorOrders = orders.filter(o => o.status === 'completed' && o.provider_order_id);
+
+  const handleCheckStatus = async (providerOrderId, id) => {
+    setCheckingId(id);
+    try {
+      const res = await fetch('/api/vendor-status', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ provider_order_id: providerOrderId })
+      });
+      const result = await res.json();
+      
+      if (result.status) {
+        const d = result.data;
+        // Format response status dari IrvanKede biasanya: status, start_count, remains
+        alert(`Status Pusat: ${d.status}\nStart Count: ${d.start_count || 0}\nSisa (Remains): ${d.remains || 0}`);
+      } else {
+        alert('Gagal cek status: ' + result.message);
+      }
+    } catch (error) {
+      alert('Error system: ' + error.message);
+    }
+    setCheckingId(null);
+  };
+
+  return (
+    <div>
+      <div style={{ marginBottom: '1.75rem' }}>
+        <h1 style={{ fontSize: '1.6rem', fontWeight: 800, marginBottom: '0.2rem' }}>Live Cek Pusat (Irvan Kede)</h1>
+        <p style={{ color: '#475569', fontSize: '0.9rem' }}>Pantau status real-time pesanan yang sudah dilempar ke pusat.</p>
+      </div>
+
+      <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.08)', borderRadius: '14px', overflow: 'hidden' }}>
+        <div style={{ overflowX: 'auto' }}>
+          <table className="order-table">
+            <thead>
+              <tr>
+                <th>ID Panel</th>
+                <th>Order ID Pusat</th>
+                <th>Layanan</th>
+                <th>Target</th>
+                <th>Jumlah</th>
+                <th>Aksi</th>
+              </tr>
+            </thead>
+            <tbody>
+              {vendorOrders.length === 0 ? (
+                <tr><td colSpan="6" style={{ textAlign: 'center', color: '#475569', padding: '2.5rem' }}>Belum ada pesanan yang terlacak. (Pesanan lama belum didukung)</td></tr>
+              ) : (
+                vendorOrders.map(order => (
+                  <tr key={order.id}>
+                    <td style={{ color: '#475569', fontSize: '0.8rem' }}>#{order.id}</td>
+                    <td style={{ color: '#38bdf8', fontWeight: 700 }}>{order.provider_order_id}</td>
+                    <td style={{ maxWidth: '200px', whiteSpace: 'nowrap', overflow: 'hidden', textOverflow: 'ellipsis' }}>{order.service_name}</td>
+                    <td style={{ color: '#94a3b8' }}>{order.target}</td>
+                    <td>{order.quantity}</td>
+                    <td>
+                      <button
+                        onClick={() => handleCheckStatus(order.provider_order_id, order.id)}
+                        disabled={checkingId === order.id}
+                        style={{
+                          background: checkingId === order.id ? 'rgba(56, 189, 248, 0.3)' : 'rgba(56, 189, 248, 0.1)',
+                          color: '#38bdf8',
+                          border: '1px solid rgba(56, 189, 248, 0.3)',
+                          padding: '0.4rem 0.8rem',
+                          borderRadius: '8px',
+                          fontSize: '0.75rem',
+                          fontWeight: 700,
+                          cursor: checkingId === order.id ? 'not-allowed' : 'pointer',
+                        }}
+                      >
+                        {checkingId === order.id ? '⏳ Mengecek...' : '🔍 Cek Status Live'}
+                      </button>
+                    </td>
+                  </tr>
+                ))
               )}
             </tbody>
           </table>
@@ -431,6 +522,9 @@ export default function AdminDashboard() {
             onReject={handleRejectOrder}
             onRefresh={fetchOrders}
           />
+        )}
+        {activePage === 'vendor' && (
+          <VendorStatusPage orders={orders} />
         )}
       </main>
     </div>
